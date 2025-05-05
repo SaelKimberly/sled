@@ -7,7 +7,13 @@ license = "MIT OR Apache-2.0"
 homepage = "https://github.com/spacejam/sled"
 repository = "https://github.com/spacejam/sled"
 keywords = ["redis", "mongo", "sqlite", "lmdb", "rocksdb"]
-categories = ["database-implementations", "concurrency", "data-structures", "algorithms", "caching"]
+categories = [
+    "database-implementations",
+    "concurrency",
+    "data-structures",
+    "algorithms",
+    "caching",
+]
 documentation = "https://docs.rs/sled/"
 readme = "README.md"
 edition = "2018"
@@ -40,6 +46,8 @@ no_zstd = []
 miri_optimizations = []
 mutex = []
 memshred = []
+testing = []
+compression = []
 
 [dependencies]
 libc = "0.2.96"
