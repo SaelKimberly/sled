@@ -18,7 +18,7 @@ pub const MAX_SPACE_AMPLIFICATION: f64 = 10.;
 
 pub(crate) const META_PID: PageId = 0;
 pub(crate) const COUNTER_PID: PageId = 1;
-pub(crate) const BATCH_MANIFEST_PID: PageId = PageId::max_value() - 666;
+pub(crate) const BATCH_MANIFEST_PID: PageId = PageId::MAX - 666;
 
 pub(crate) const PAGE_CONSOLIDATION_THRESHOLD: usize = 10;
 pub(crate) const SEGMENT_CLEANUP_THRESHOLD: usize = 50;

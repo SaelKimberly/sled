@@ -572,6 +572,7 @@ impl Deref for Node {
 
 impl Node {
     fn iter(&self) -> Iter<'_> {
+        #[allow(clippy::iter_skip_zero)]
         Iter {
             overlay: self.overlay.iter().skip(0),
             node: &self.inner,
@@ -914,7 +915,7 @@ impl Node {
     pub(crate) fn node_kv_pair<'a>(
         &'a self,
         key: &'a [u8],
-    ) -> (IVec, Option<&[u8]>) {
+    ) -> (IVec, Option<&'a [u8]>) {
         let encoded_key = self.prefix_encode(key);
         if let Some(v) = self.overlay.get(encoded_key) {
             (encoded_key.into(), v.as_ref().map(AsRef::as_ref))
@@ -934,6 +935,7 @@ impl Node {
         &self,
         bound: &Bound<IVec>,
     ) -> Option<(IVec, IVec)> {
+        #[allow(clippy::iter_skip_zero)]
         let (overlay, node_position) = match bound {
             Bound::Unbounded => (self.overlay.iter().skip(0), 0),
             Bound::Included(b) => {
@@ -1007,6 +1009,7 @@ impl Node {
         &self,
         bound: &Bound<IVec>,
     ) -> Option<(IVec, IVec)> {
+        #[allow(clippy::iter_skip_zero)]
         let (overlay, node_back_position) = match bound {
             Bound::Unbounded => (self.overlay.iter().skip(0), self.children()),
             Bound::Included(b) => {

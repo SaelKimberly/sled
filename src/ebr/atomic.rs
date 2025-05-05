@@ -689,6 +689,7 @@ pub(crate) struct Shared<'g, T: 'g + ?Sized + Pointable> {
     _marker: PhantomData<(&'g (), *const T)>,
 }
 
+#[allow(clippy::non_canonical_clone_impl)]
 impl<T: ?Sized + Pointable> Clone for Shared<'_, T> {
     fn clone(&self) -> Self {
         Self { data: self.data, _marker: PhantomData }
@@ -832,6 +833,7 @@ impl<'g, T: ?Sized + Pointable> PartialEq<Shared<'g, T>> for Shared<'g, T> {
 
 impl<T: ?Sized + Pointable> Eq for Shared<'_, T> {}
 
+#[allow(clippy::non_canonical_partial_ord_impl)]
 impl<'g, T: ?Sized + Pointable> PartialOrd<Shared<'g, T>> for Shared<'g, T> {
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
         self.data.partial_cmp(&other.data)

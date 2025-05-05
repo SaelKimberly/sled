@@ -296,7 +296,7 @@ fn scan_segment_headers_and_tail(
             base_lid, segment
         );
         if segment.ok && segment.lsn >= min {
-            assert_ne!(segment.lsn, Lsn::max_value());
+            assert_ne!(segment.lsn, Lsn::MAX);
             Some((base_lid, segment))
         } else {
             trace!(

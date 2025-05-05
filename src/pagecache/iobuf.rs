@@ -375,7 +375,7 @@ impl IoBufs {
 
         // the tip offset is not completely full yet, reuse it
         let base = assert_usize(next_lid % segment_size as LogOffset);
-
+        #[allow(clippy::arc_with_non_send_sync)]
         let mut iobuf = IoBuf {
             buf: Arc::new(UnsafeCell::new(AlignedBuf::new(segment_size))),
             header: CachePadded::new(AtomicU64::new(0)),
@@ -637,7 +637,7 @@ impl IoBufs {
 
         assert_ne!(
             log_offset,
-            LogOffset::max_value(),
+            LogOffset::MAX,
             "created reservation for uninitialized slot",
         );
 
@@ -667,7 +667,7 @@ impl IoBufs {
 
             let cap_header = MessageHeader {
                 kind: MessageKind::Cap,
-                pid: PageId::max_value(),
+                pid: PageId::MAX,
                 segment_number,
                 len: u64::try_from(pad_len).unwrap(),
                 crc32: 0,
@@ -1112,7 +1112,7 @@ pub(in crate::pagecache) fn maybe_seal_and_write_iobuf(
 
     assert_ne!(
         lid,
-        LogOffset::max_value(),
+        LogOffset::MAX,
         "sealing something that should never have \
          been claimed (iobuf lsn {})\n{:?}",
         lsn,
@@ -1160,6 +1160,7 @@ pub(in crate::pagecache) fn maybe_seal_and_write_iobuf(
     // set up. expect this thread to block until the buffer completes
     // its entire life cycle as soon as we do that.
     let next_iobuf = if maxed {
+        #[allow(clippy::arc_with_non_send_sync)]
         let mut next_iobuf = IoBuf {
             buf: Arc::new(UnsafeCell::new(AlignedBuf::new(segment_size))),
             header: CachePadded::new(AtomicU64::new(0)),

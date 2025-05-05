@@ -627,8 +627,11 @@ impl Config {
         let temp_path = self.get_path().join("conf.tmp");
         let final_path = self.config_path();
 
-        let mut f =
-            fs::OpenOptions::new().write(true).create(true).open(&temp_path)?;
+        let mut f = fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(&temp_path)?;
 
         io_fail!(self, "write_config bytes");
         f.write_all(&bytes)?;
@@ -761,9 +764,8 @@ impl Deref for RunningConfig {
 #[cfg(all(not(miri), any(windows, target_os = "linux", target_os = "macos")))]
 impl Drop for RunningConfig {
     fn drop(&mut self) {
-        use fs2::FileExt;
         if Arc::strong_count(&self.file) == 1 {
-            let _ = self.file.unlock();
+            let _ = fs2::FileExt::unlock(&*self.file);
         }
     }
 }

@@ -543,8 +543,11 @@ pub(in crate::pagecache) fn write_snapshot(
 
     let parent = path_1.parent().unwrap();
     std::fs::create_dir_all(parent)?;
-    let mut f =
-        std::fs::OpenOptions::new().write(true).create(true).open(&path_1)?;
+    let mut f = std::fs::OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .open(&path_1)?;
 
     // write the snapshot bytes, followed by a crc64 checksum at the end
     io_fail!(config, "snap write");

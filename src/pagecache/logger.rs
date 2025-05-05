@@ -367,7 +367,7 @@ impl Log {
             // were incremented in a racy way.
             assert_ne!(
                 log_offset,
-                LogOffset::max_value(),
+                LogOffset::MAX,
                 "fucked up on iobuf with lsn {}\n{:?}",
                 reservation_lsn,
                 self

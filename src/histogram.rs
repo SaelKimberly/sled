@@ -151,7 +151,7 @@ impl Histogram {
             }
         }
 
-        std::f64::NAN
+        f64::NAN
     }
 
     /// Dump out some common percentiles.
@@ -183,7 +183,7 @@ fn compress<T: Into<f64>>(input_value: T) -> u16 {
     let boosted = 1. + abs;
     let ln = boosted.ln();
     let compressed = PRECISION.mul_add(ln, 0.5);
-    assert!(compressed <= f64::from(u16::max_value()));
+    assert!(compressed <= f64::from(u16::MAX));
 
     compressed as u16
 }

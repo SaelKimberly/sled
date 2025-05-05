@@ -6,7 +6,7 @@ use crate::{M, Measure};
 use super::*;
 
 #[cfg(any(test, feature = "lock_free_delays"))]
-const MAX_LOOPS: usize = usize::max_value();
+const MAX_LOOPS: usize = usize::MAX;
 
 #[cfg(not(any(test, feature = "lock_free_delays")))]
 const MAX_LOOPS: usize = 1_000_000;
@@ -15,7 +15,7 @@ fn possible_predecessor(s: &[u8]) -> Option<Vec<u8>> {
     let mut ret = s.to_vec();
     match ret.pop() {
         None => None,
-        Some(i) if i == 0 => Some(ret),
+        Some(0) => Some(ret),
         Some(i) => {
             ret.push(i - 1);
             ret.extend_from_slice(&[255; 4]);

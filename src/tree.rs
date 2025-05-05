@@ -1419,9 +1419,9 @@ impl Tree {
         let mut upper = prefix_ref.to_vec();
 
         while let Some(last) = upper.pop() {
-            if last < u8::max_value() {
+            if last < u8::MAX {
                 upper.push(last + 1);
-                return self.range(prefix_ref..&upper);
+                return self.range(prefix_ref..upper.as_slice());
             }
         }
 
@@ -1775,7 +1775,7 @@ impl Tree {
         K: AsRef<[u8]>,
     {
         #[cfg(any(test, feature = "lock_free_delays"))]
-        const MAX_LOOPS: usize = usize::max_value();
+        const MAX_LOOPS: usize = usize::MAX;
 
         #[cfg(not(any(test, feature = "lock_free_delays")))]
         const MAX_LOOPS: usize = 1_000_000;
@@ -1820,7 +1820,7 @@ impl Tree {
                 };
             }
 
-            if cursor == u64::max_value() {
+            if cursor == u64::MAX {
                 // this collection has been explicitly removed
                 return Err(Error::CollectionNotFound);
             }

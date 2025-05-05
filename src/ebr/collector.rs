@@ -38,6 +38,7 @@ unsafe impl Send for Collector {}
 unsafe impl Sync for Collector {}
 
 impl Default for Collector {
+    #[allow(clippy::arc_with_non_send_sync)]
     fn default() -> Self {
         Self { global: Arc::new(Global::new()) }
     }

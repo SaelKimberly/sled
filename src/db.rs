@@ -150,7 +150,7 @@ impl Db {
         };
 
         // signal to all threads that this tree is no longer valid
-        tree.root.store(u64::max_value(), SeqCst);
+        tree.root.store(u64::MAX, SeqCst);
 
         let guard = pin();
 

@@ -81,6 +81,7 @@ mod tests {
     use std::cell::Cell;
 
     #[test]
+    #[allow(dropping_copy_types)]
     fn on_stack() {
         let fired = &Cell::new(false);
         let a = [0_usize; 1];
@@ -96,6 +97,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(dropping_copy_types)]
     fn on_heap() {
         let fired = &Cell::new(false);
         let a = [0_usize; 10];
