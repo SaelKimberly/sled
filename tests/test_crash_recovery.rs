@@ -111,7 +111,7 @@ fn verify(tree: &sled::Tree) -> (u32, u32) {
     // it should never return, or go down again after that
     let mut iter = tree.iter();
     let highest = match iter.next() {
-        Some(Ok((_k, v))) => slice_to_u32(&*v),
+        Some(Ok((_k, v))) => slice_to_u32(&v),
         Some(Err(e)) => panic!("{:?}", e),
         None => return (0, 0),
     };
@@ -131,7 +131,7 @@ fn verify(tree: &sled::Tree) -> (u32, u32) {
             } else {
                 (highest - 1) % CYCLE as u32
             };
-            let actual = slice_to_u32(&*v);
+            let actual = slice_to_u32(&v);
             assert_eq!(expected, actual);
             lowest = actual;
             break;
@@ -144,12 +144,12 @@ fn verify(tree: &sled::Tree) -> (u32, u32) {
     for res in tree.range(&*low_beginning..) {
         let (k, v): (sled::IVec, _) = res.unwrap();
         assert_eq!(
-            slice_to_u32(&*v),
+            slice_to_u32(&v),
             lowest,
             "expected key {} to have value {}, instead it had value {} in db: {:?}",
-            slice_to_u32(&*k),
+            slice_to_u32(&k),
             lowest,
-            slice_to_u32(&*v),
+            slice_to_u32(&v),
             tree
         );
     }
@@ -220,7 +220,7 @@ fn run_inner(config: Config) {
 fn verify_batches(tree: &sled::Tree) -> u32 {
     let mut iter = tree.iter();
     let first_value = match iter.next() {
-        Some(Ok((_k, v))) => slice_to_u32(&*v),
+        Some(Ok((_k, v))) => slice_to_u32(&v),
         Some(Err(e)) => panic!("{:?}", e),
         None => return 0,
     };
@@ -234,7 +234,7 @@ fn verify_batches(tree: &sled::Tree) -> u32 {
                 key, tree
             ),
         };
-        let value = slice_to_u32(&*v);
+        let value = slice_to_u32(&v);
         assert_eq!(
             first_value, value,
             "expected key {} to have value {}, instead it had value {} in db: {:?}",
@@ -324,7 +324,9 @@ fn run_crash_batches() {
 fn run_child_process(test_name: &str) -> Child {
     let bin = env::current_exe().expect("could not get test binary path");
 
-    env::set_var(TEST_ENV_VAR, test_name);
+    unsafe {
+        env::set_var(TEST_ENV_VAR, test_name);
+    }
 
     Command::new(bin)
         .env(TEST_ENV_VAR, test_name)
@@ -577,7 +579,7 @@ fn run_crash_iter() {
     spawn_killah();
 
     threads.push(deleter);
-
+    #[allow(clippy::never_loop)]
     for thread in threads.into_iter() {
         thread.join().expect("thread should not have crashed");
     }
@@ -642,7 +644,7 @@ fn run_crash_tx() {
                             .unwrap(),
                         );
 
-                        let mut results = vec![v1, v2];
+                        let mut results = [v1, v2];
                         results.sort();
 
                         assert_eq!(
@@ -661,7 +663,7 @@ fn run_crash_tx() {
     }
 
     spawn_killah();
-
+    #[allow(clippy::never_loop)]
     for thread in threads.into_iter() {
         thread.join().expect("threads should not crash");
     }

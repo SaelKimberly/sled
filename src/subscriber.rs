@@ -55,7 +55,7 @@ impl<'a> IntoIterator for &'a Event {
     type IntoIter = Box<dyn 'a + Iterator<Item = Self::Item>>;
 
     fn into_iter(self) -> Self::IntoIter {
-        Box::new(self.batches.iter().flat_map(|(ref tree, ref batch)| {
+        Box::new(self.batches.iter().flat_map(|(tree, batch)| {
             batch.writes.iter().map(move |(k, v_opt)| (tree, k, v_opt))
         }))
     }
@@ -134,11 +134,11 @@ impl Subscriber {
     ) -> std::result::Result<Event, std::sync::mpsc::RecvTimeoutError> {
         loop {
             let before_first_receive = Instant::now();
-            let mut future_rx = if let Some(future_rx) = self.existing.take() {
+            let mut future_rx = match self.existing.take() { Some(future_rx) => {
                 future_rx
-            } else {
+            } _ => {
                 self.rx.recv_timeout(timeout)?
-            };
+            }};
             timeout = timeout
                 .checked_sub(before_first_receive.elapsed())
                 .unwrap_or_default();
@@ -167,9 +167,9 @@ impl Future for Subscriber {
         cx: &mut Context<'_>,
     ) -> Poll<Self::Output> {
         loop {
-            let mut future_rx = if let Some(future_rx) = self.existing.take() {
+            let mut future_rx = match self.existing.take() { Some(future_rx) => {
                 future_rx
-            } else {
+            } _ => {
                 match self.rx.try_recv() {
                     Ok(future_rx) => future_rx,
                     Err(TryRecvError::Empty) => break,
@@ -177,7 +177,7 @@ impl Future for Subscriber {
                         return Poll::Ready(None);
                     }
                 }
-            };
+            }};
 
             match Future::poll(Pin::new(&mut future_rx), cx) {
                 Poll::Ready(Some(event)) => return Poll::Ready(event),

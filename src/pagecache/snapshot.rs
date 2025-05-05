@@ -224,12 +224,10 @@ impl Snapshot {
     fn filter_inner_heap_ids(&mut self) {
         for page in &mut self.pt {
             match page {
-                PageState::Free(_lsn, ref mut ptr) => {
-                    ptr.forget_heap_log_coordinates()
-                }
-                PageState::Present { ref mut base, ref mut frags } => {
+                PageState::Free(_lsn, ptr) => ptr.forget_heap_log_coordinates(),
+                PageState::Present { base, frags } => {
                     base.1.forget_heap_log_coordinates();
-                    for (_, ref mut ptr) in frags {
+                    for (_, ptr) in frags {
                         ptr.forget_heap_log_coordinates();
                     }
                 }

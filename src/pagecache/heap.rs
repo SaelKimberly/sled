@@ -335,19 +335,22 @@ impl Slab {
     }
 
     fn reserve(&self, original_lsn: Lsn) -> Reservation {
-        let (idx, from_tip) = if let Some(idx) = self.free.pop(&pin()) {
-            log::trace!(
-                "reusing heap index {} in slab for sizes of {}",
-                idx,
-                slab_id_to_size(self.slab_id),
-            );
-            (idx, false)
-        } else {
-            log::trace!(
-                "no free heap slots in slab for sizes of {}",
-                slab_id_to_size(self.slab_id),
-            );
-            (self.tip.fetch_add(1, Acquire), true)
+        let (idx, from_tip) = match self.free.pop(&pin()) {
+            Some(idx) => {
+                log::trace!(
+                    "reusing heap index {} in slab for sizes of {}",
+                    idx,
+                    slab_id_to_size(self.slab_id),
+                );
+                (idx, false)
+            }
+            _ => {
+                log::trace!(
+                    "no free heap slots in slab for sizes of {}",
+                    slab_id_to_size(self.slab_id),
+                );
+                (self.tip.fetch_add(1, Acquire), true)
+            }
         };
 
         log::trace!(

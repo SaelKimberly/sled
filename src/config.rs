@@ -279,7 +279,7 @@ impl Inner {
 }
 
 macro_rules! supported {
-    ($cond:expr, $msg:expr) => {
+    ($cond:expr_2021, $msg:expr_2021) => {
         if !$cond {
             return Err(Error::Unsupported($msg));
         }
@@ -287,7 +287,7 @@ macro_rules! supported {
 }
 
 macro_rules! builder {
-    ($(($name:ident, $t:ty, $desc:expr)),*) => {
+    ($(($name:ident, $t:ty, $desc:expr_2021)),*) => {
         $(
             #[doc=$desc]
             pub fn $name(mut self, to: $t) -> Self {

@@ -19,10 +19,10 @@ use crate::{IVec, Link, varint};
 const ALIGNMENT: usize = align_of::<Header>();
 
 macro_rules! tf {
-    ($e:expr) => {
+    ($e:expr_2021) => {
         usize::try_from($e).unwrap()
     };
-    ($e:expr, $t:ty) => {
+    ($e:expr_2021, $t:ty) => {
         <$t>::try_from($e).unwrap()
     };
 }
@@ -590,12 +590,12 @@ impl Node {
         self.iter().map(|(_, v)| u64::from_le_bytes(v.try_into().unwrap()))
     }
 
-    pub(crate) unsafe fn from_raw(buf: &[u8]) -> Node {
+    pub(crate) unsafe fn from_raw(buf: &[u8]) -> Node { unsafe {
         Node {
             overlay: Default::default(),
             inner: Arc::new(Inner::from_raw(buf)),
         }
-    }
+    }}
 
     pub(crate) fn new_root(child_pid: u64) -> Node {
         Node {
@@ -2703,12 +2703,12 @@ mod test {
                 if let Some(ref hi) = hi { Some(hi) } else { None };
 
             let equal_length_keys =
-                g.gen::<Option<usize>>().map(|kl| (kl % 32).max(1));
+                g.r#gen::<Option<usize>>().map(|kl| (kl % 32).max(1));
 
             let min_key_length = equal_length_keys.unwrap_or(0);
 
             let equal_length_values =
-                g.gen::<Option<usize>>().map(|vl| (vl % 32).max(1));
+                g.r#gen::<Option<usize>>().map(|vl| (vl % 32).max(1));
 
             let min_value_length = equal_length_values.unwrap_or(0);
 
@@ -2737,14 +2737,14 @@ mod test {
 
             let mut ret = Inner::new(&lo, hi, 0, false, None, &children_ref);
 
-            ret.activity_sketch = g.gen();
+            ret.activity_sketch = g.r#gen();
 
             if g.gen_bool(1. / 30.) {
-                ret.probation_ops_remaining = g.gen();
+                ret.probation_ops_remaining = g.r#gen();
             }
 
             if g.gen_bool(1. / 4.) {
-                ret.rewrite_generations = g.gen();
+                ret.rewrite_generations = g.r#gen();
             }
 
             ret

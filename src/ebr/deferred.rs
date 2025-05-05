@@ -28,16 +28,20 @@ impl fmt::Debug for Deferred {
 }
 
 unsafe fn call_raw<F: FnOnce()>(raw: *mut u8) {
-    let f: F = ptr::read(raw as *mut F);
-    f();
+    unsafe {
+        let f: F = ptr::read(raw as *mut F);
+        f();
+    }
 }
 
 unsafe fn call_raw_box<F: FnOnce()>(raw: *mut u8) {
-    // It's safe to cast `raw` from `*mut u8` to `*mut Box<F>`, because `raw` is
-    // originally derived from `*mut Box<F>`.
-    #[allow(clippy::cast_ptr_alignment)]
-    let b: Box<F> = ptr::read(raw as *mut Box<F>);
-    (*b)();
+    unsafe {
+        // It's safe to cast `raw` from `*mut u8` to `*mut Box<F>`, because `raw` is
+        // originally derived from `*mut Box<F>`.
+        #[allow(clippy::cast_ptr_alignment)]
+        let b: Box<F> = ptr::read(raw as *mut Box<F>);
+        (*b)();
+    }
 }
 
 impl Deferred {

@@ -7,7 +7,7 @@ use std::{
 use crate::{pagecache::*, *};
 
 macro_rules! io_fail {
-    ($self:expr, $e:expr) => {
+    ($self:expr_2021, $e:expr_2021) => {
         #[cfg(feature = "failpoints")]
         {
             debug_delay();
@@ -479,20 +479,21 @@ impl IoBufs {
         F: FnOnce(&mut SegmentAccountant) -> B,
     {
         debug_delay();
-        if let Some(mut sa) = self.segment_accountant.try_lock() {
-            #[cfg(feature = "metrics")]
-            let start = clock();
+        match self.segment_accountant.try_lock() {
+            Some(mut sa) => {
+                #[cfg(feature = "metrics")]
+                let start = clock();
 
-            let ret = f(&mut sa);
+                let ret = f(&mut sa);
 
-            #[cfg(feature = "metrics")]
-            M.accountant_hold.measure(clock() - start);
+                #[cfg(feature = "metrics")]
+                M.accountant_hold.measure(clock() - start);
 
-            debug_delay();
+                debug_delay();
 
-            Some(ret)
-        } else {
-            None
+                Some(ret)
+            }
+            _ => None,
         }
     }
 

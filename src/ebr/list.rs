@@ -131,25 +131,27 @@ impl<T, C: IsElement<T>> List<T, C> {
         container: Shared<'g, T>,
         guard: &'g Guard,
     ) {
-        // Insert right after head, i.e. at the beginning of the list.
-        let to = &self.head;
-        // Get the intrusively stored Entry of the new element to insert.
-        let entry: &Entry = C::entry_of(container.deref());
-        // Make a Shared ptr to that Entry.
-        #[allow(trivial_casts)]
-        let entry_ptr = Shared::from(entry as *const _);
-        // Read the current successor of where we want to insert.
-        let mut next = to.load(Relaxed, guard);
+        unsafe {
+            // Insert right after head, i.e. at the beginning of the list.
+            let to = &self.head;
+            // Get the intrusively stored Entry of the new element to insert.
+            let entry: &Entry = C::entry_of(container.deref());
+            // Make a Shared ptr to that Entry.
+            #[allow(trivial_casts)]
+            let entry_ptr = Shared::from(entry as *const _);
+            // Read the current successor of where we want to insert.
+            let mut next = to.load(Relaxed, guard);
 
-        loop {
-            // Set the Entry of the to-be-inserted element to point to the previous successor of
-            // `to`.
-            entry.next.store(next, Relaxed);
-            match to.compare_and_set_weak(next, entry_ptr, Release, guard) {
-                Ok(_) => break,
-                // We lost the race or weak CAS failed spuriously. Update the successor and try
-                // again.
-                Err(err) => next = err.current,
+            loop {
+                // Set the Entry of the to-be-inserted element to point to the previous successor of
+                // `to`.
+                entry.next.store(next, Relaxed);
+                match to.compare_and_set_weak(next, entry_ptr, Release, guard) {
+                    Ok(_) => break,
+                    // We lost the race or weak CAS failed spuriously. Update the successor and try
+                    // again.
+                    Err(err) => next = err.current,
+                }
             }
         }
     }
@@ -274,9 +276,11 @@ mod tests {
         }
 
         unsafe fn finalize(entry: &Entry, guard: &Guard) {
-            guard.defer_destroy(Shared::from(
-                Self::element_of(entry) as *const _
-            ));
+            unsafe {
+                guard.defer_destroy(Shared::from(
+                    Self::element_of(entry) as *const _
+                ));
+            }
         }
     }
 

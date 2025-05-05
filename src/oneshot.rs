@@ -80,11 +80,11 @@ impl<T> OneShot<T> {
             }
             timeout = timeout.checked_sub(start.elapsed()).unwrap_or_default();
         }
-        if let Some(item) = inner.item.take() {
+        match inner.item.take() { Some(item) => {
             Ok(item)
-        } else {
+        } _ => {
             Err(std::sync::mpsc::RecvTimeoutError::Disconnected)
-        }
+        }}
     }
 }
 

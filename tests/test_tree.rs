@@ -54,10 +54,10 @@ fn monotonic_inserts() {
         }
 
         let count = db.iter().count();
-        assert_eq!(count, *len as usize);
+        assert_eq!(count, { *len });
 
         let count2 = db.iter().rev().count();
-        assert_eq!(count2, *len as usize);
+        assert_eq!(count2, { *len });
 
         db.clear().unwrap();
     }
@@ -72,10 +72,10 @@ fn monotonic_inserts() {
         }
 
         let count3 = db.iter().count();
-        assert_eq!(count3, *len as usize);
+        assert_eq!(count3, { *len });
 
         let count4 = db.iter().rev().count();
-        assert_eq!(count4, *len as usize);
+        assert_eq!(count4, { *len });
 
         db.clear().unwrap();
     }
@@ -91,7 +91,7 @@ fn fixed_stride_inserts() {
 
     let mut expected = std::collections::HashSet::new();
     for k in 0..4096_u16 {
-        db.insert(&k.to_be_bytes(), &[]).unwrap();
+        db.insert(k.to_be_bytes(), &[]).unwrap();
         expected.insert(k.to_be_bytes().to_vec());
     }
 
@@ -108,7 +108,7 @@ fn fixed_stride_inserts() {
     assert_eq!(count, 4096);
 
     for k in 0..4096_u16 {
-        db.insert(&k.to_be_bytes(), &[1]).unwrap();
+        db.insert(k.to_be_bytes(), &[1]).unwrap();
     }
 
     let count = db.iter().count();
@@ -119,7 +119,7 @@ fn fixed_stride_inserts() {
     assert_eq!(db.len(), 4096);
 
     for k in 0..4096_u16 {
-        db.remove(&k.to_be_bytes()).unwrap();
+        db.remove(k.to_be_bytes()).unwrap();
     }
 
     let count = db.iter().count();
@@ -140,7 +140,7 @@ fn sequential_inserts() {
 
     for len in [1, 16, 32, u16::MAX].iter() {
         for i in 0..*len {
-            db.insert(&i.to_le_bytes(), &[]).unwrap();
+            db.insert(i.to_le_bytes(), &[]).unwrap();
         }
 
         let count = db.iter().count();
@@ -161,7 +161,7 @@ fn reverse_inserts() {
     for len in [1, 16, 32, u16::MAX].iter() {
         for i in 0..*len {
             let i2 = u16::MAX - i;
-            db.insert(&i2.to_le_bytes(), &[]).unwrap();
+            db.insert(i2.to_le_bytes(), &[]).unwrap();
         }
 
         let count = db.iter().count();
@@ -633,7 +633,7 @@ fn concurrent_tree_transactions() -> TransactionResult<()> {
                     let v1 = db.get(b"k1")?.unwrap();
                     let v2 = db.get(b"k2")?.unwrap();
 
-                    let mut results = vec![v1, v2];
+                    let mut results = [v1, v2];
                     results.sort();
 
                     assert_eq!([&results[0], &results[1]], [b"cats", b"dogs"]);
@@ -765,7 +765,7 @@ fn tree_subdir() {
 
     let t = config.open().unwrap();
 
-    t.insert(&[1], vec![1]).unwrap();
+    t.insert([1], vec![1]).unwrap();
 
     drop(t);
 
@@ -828,7 +828,7 @@ fn tree_big_keys_iterator() {
     fn kv(i: usize) -> Vec<u8> {
         let k = [(i >> 16) as u8, (i >> 8) as u8, i as u8];
 
-        let mut base = vec![0; u8::max_value() as usize];
+        let mut base = vec![0; u8::MAX as usize];
         base.extend_from_slice(&k);
         base
     }
@@ -1027,7 +1027,7 @@ fn recover_tree() {
 
     let t = config.open().unwrap();
     for i in 0..N_PER_THREAD {
-        let k = kv(i as usize);
+        let k = kv(i);
         assert_eq!(t.get(&*k).unwrap().unwrap(), k);
         t.remove(&*k).unwrap();
     }
@@ -1035,7 +1035,7 @@ fn recover_tree() {
 
     let t = config.open().unwrap();
     for i in 0..N_PER_THREAD {
-        let k = kv(i as usize);
+        let k = kv(i);
         assert_eq!(t.get(&*k), Ok(None));
     }
 }
@@ -1066,12 +1066,12 @@ fn contains_tree() {
     drop(tree_one);
     drop(tree_two);
 
-    assert_eq!(false, db.contains_tree("tree 3"));
-    assert_eq!(true, db.contains_tree("tree 1"));
-    assert_eq!(true, db.contains_tree("tree 2"));
+    assert!(!db.contains_tree("tree 3"));
+    assert!(db.contains_tree("tree 1"));
+    assert!(db.contains_tree("tree 2"));
 
     assert!(db.drop_tree("tree 1").unwrap());
-    assert_eq!(false, db.contains_tree("tree 1"));
+    assert!(!db.contains_tree("tree 1"));
 }
 
 #[test]
@@ -1116,7 +1116,7 @@ fn tree_import_export() -> Result<()> {
         let tree = db.open_tree(tree_id.as_bytes())?;
 
         for i in 0..N_THREADS {
-            let k = kv(i as usize);
+            let k = kv(i);
             assert_eq!(tree.get(&*k).unwrap().unwrap(), k);
             tree.remove(&*k).unwrap();
         }
@@ -1132,7 +1132,7 @@ fn tree_import_export() -> Result<()> {
         let tree = db.open_tree(tree_id.as_bytes())?;
 
         for i in 0..N_THREADS {
-            let k = kv(i as usize);
+            let k = kv(i);
             assert_eq!(tree.get(&*k), Ok(None));
         }
     }
@@ -1149,7 +1149,7 @@ fn quickcheck_tree_matches_btreemap() {
     let n_tests = if cfg!(windows) { 25 } else { 100 };
 
     QuickCheck::new()
-        .gen(StdGen::new(rand::thread_rng(), 1000))
+        .r#gen(StdGen::new(rand::thread_rng(), 1000))
         .tests(n_tests)
         .max_tests(n_tests * 10)
         .quickcheck(

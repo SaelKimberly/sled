@@ -172,7 +172,7 @@ impl Log {
 
         let mut printed = false;
         macro_rules! trace_once {
-            ($($msg:expr),*) => {
+            ($($msg:expr_2021),*) => {
                 if !printed {
                     trace!($($msg),*);
                     printed = true;

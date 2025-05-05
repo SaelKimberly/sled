@@ -301,9 +301,9 @@ fn log_chunky_iterator() {
 
     for i in PID..1000 {
         let len = thread_rng().gen_range(0, max_valid_size * 2);
-        let item = thread_rng().gen::<u8>();
+        let item = thread_rng().r#gen::<u8>();
         let buf = IVec::from(vec![item; len]);
-        let abort = thread_rng().gen::<bool>();
+        let abort = thread_rng().r#gen::<bool>();
 
         let pid = 10000 + i;
 

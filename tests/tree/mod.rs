@@ -37,11 +37,11 @@ impl Gen for SledGen {
 
 impl RngCore for SledGen {
     fn next_u32(&mut self) -> u32 {
-        self.r.gen::<u32>()
+        self.r.r#gen::<u32>()
     }
 
     fn next_u64(&mut self) -> u64 {
-        self.r.gen::<u64>()
+        self.r.r#gen::<u64>()
     }
 
     fn fill_bytes(&mut self, dest: &mut [u8]) {
@@ -96,23 +96,24 @@ impl Arbitrary for Key {
     #![allow(clippy::cast_sign_loss)]
 
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
-        if g.gen::<bool>() {
+        if g.r#gen::<bool>() {
             let gs = g.size();
             let gamma = Gamma::new(0.3, gs as f64).unwrap();
             let v = gamma.sample(&mut rand::thread_rng());
             let len = if v > 3000.0 { 10000 } else { (v % 300.) as usize };
 
-            let space = g.gen_range(0, gs) + 1;
+            let space = g.r#gen_range(0, gs) + 1;
 
-            let inner = (0..len).map(|_| g.gen_range(0, space) as u8).collect();
+            let inner =
+                (0..len).map(|_| g.r#gen_range(0, space) as u8).collect();
 
             Self(inner)
         } else {
-            let len = g.gen_range(0, 2);
+            let len = g.r#gen_range(0, 2);
             let mut inner = vec![];
 
             for _ in 0..len {
-                inner.push(g.gen::<u8>());
+                inner.push(g.r#gen::<u8>());
             }
 
             Self(inner)
@@ -148,21 +149,21 @@ use self::Op::{Cas, Del, Get, GetGt, GetLt, Merge, Restart, Scan, Set};
 
 impl Arbitrary for Op {
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
-        if g.gen_bool(1. / 10.) {
+        if g.r#gen_bool(1. / 10.) {
             return Restart;
         }
 
-        let choice = g.gen_range(0, 8);
+        let choice = g.r#gen_range(0, 8);
 
         match choice {
-            0 => Set(Key::arbitrary(g), g.gen::<u8>()),
-            1 => Merge(Key::arbitrary(g), g.gen::<u8>()),
+            0 => Set(Key::arbitrary(g), g.r#gen::<u8>()),
+            1 => Merge(Key::arbitrary(g), g.r#gen::<u8>()),
             2 => Get(Key::arbitrary(g)),
             3 => GetLt(Key::arbitrary(g)),
             4 => GetGt(Key::arbitrary(g)),
             5 => Del(Key::arbitrary(g)),
-            6 => Cas(Key::arbitrary(g), g.gen::<u8>(), g.gen::<u8>()),
-            7 => Scan(Key::arbitrary(g), g.gen_range(-40, 40)),
+            6 => Cas(Key::arbitrary(g), g.r#gen::<u8>(), g.r#gen::<u8>()),
+            7 => Scan(Key::arbitrary(g), g.r#gen_range(-40, 40)),
             _ => panic!("impossible choice"),
         }
     }
@@ -262,7 +263,7 @@ fn prop_tree_matches_btreemap_inner(
                 let old_actual = tree.insert(&k.0, vec![0, v]).unwrap();
                 let old_reference = reference.insert(k.clone(), u16::from(v));
                 assert_eq!(
-                    old_actual.map(|v| bytes_to_u16(&*v)),
+                    old_actual.map(|v| bytes_to_u16(&v)),
                     old_reference,
                     "when setting key {:?}, expected old returned value to be {:?}\n{:?}",
                     k,
@@ -276,7 +277,7 @@ fn prop_tree_matches_btreemap_inner(
                 *entry += u16::from(v);
             }
             Get(k) => {
-                let res1 = tree.get(&*k.0).unwrap().map(|v| bytes_to_u16(&*v));
+                let res1 = tree.get(&*k.0).unwrap().map(|v| bytes_to_u16(&v));
                 let res2 = reference.get(&k).cloned();
                 assert_eq!(res1, res2);
             }

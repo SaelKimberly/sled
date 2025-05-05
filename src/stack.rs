@@ -120,7 +120,7 @@ impl<T: Send + Sync + 'static> Stack<T> {
     pub(crate) fn take_iter<'a>(
         &self,
         guard: &'a Guard,
-    ) -> impl Iterator<Item = &'a T> {
+    ) -> impl Iterator<Item = &'a T> + use<'a, T> {
         debug_delay();
         let node = self.head.swap(Shared::null(), Release, guard);
 

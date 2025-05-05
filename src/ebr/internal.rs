@@ -450,11 +450,13 @@ impl Local {
     ///
     /// It should be safe for another thread to execute the given function.
     pub(super) unsafe fn defer(&self, mut deferred: Deferred, guard: &Guard) {
-        let bag = &mut *self.bag.get();
+        unsafe {
+            let bag = &mut *self.bag.get();
 
-        while let Err(d) = bag.try_push(deferred) {
-            self.global().push_bag(bag, guard);
-            deferred = d;
+            while let Err(d) = bag.try_push(deferred) {
+                self.global().push_bag(bag, guard);
+                deferred = d;
+            }
         }
     }
 
@@ -621,15 +623,21 @@ impl IsElement<Local> for Local {
     }
 
     unsafe fn element_of(entry: &Entry) -> &Local {
-        #[allow(trivial_casts)]
-        let local_ptr =
-            (entry as *const Entry as usize - entry_offset()) as *const Local;
-        &*local_ptr
+        unsafe {
+            #[allow(trivial_casts)]
+            let local_ptr = (entry as *const Entry as usize - entry_offset())
+                as *const Local;
+            &*local_ptr
+        }
     }
 
     unsafe fn finalize(entry: &Entry, guard: &Guard) {
-        #[allow(trivial_casts)]
-        guard.defer_destroy(Shared::from(Self::element_of(entry) as *const _));
+        unsafe {
+            #[allow(trivial_casts)]
+            guard.defer_destroy(Shared::from(
+                Self::element_of(entry) as *const _
+            ));
+        }
     }
 }
 

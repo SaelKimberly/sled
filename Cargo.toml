@@ -16,7 +16,7 @@ categories = [
 ]
 documentation = "https://docs.rs/sled/"
 readme = "README.md"
-edition = "2021"
+edition = "2024"
 exclude = ["benchmarks", "examples", "bindings", "scripts", "experiments"]
 
 [package.metadata.docs.rs]

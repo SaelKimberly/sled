@@ -143,11 +143,11 @@ impl Db {
 
         let mut tenants = self.tenants.write();
 
-        let tree = if let Some(tree) = tenants.remove(name_ref) {
+        let tree = match tenants.remove(name_ref) { Some(tree) => {
             tree
-        } else {
+        } _ => {
             return Ok(false);
-        };
+        }};
 
         // signal to all threads that this tree is no longer valid
         tree.root.store(u64::MAX, SeqCst);
@@ -322,7 +322,7 @@ impl Db {
     /// ```
     pub fn export(
         &self,
-    ) -> Vec<(CollectionType, CollectionName, impl Iterator<Item = Vec<Vec<u8>>>)>
+    ) -> Vec<(CollectionType, CollectionName, impl Iterator<Item = Vec<Vec<u8>>> + use<>)>
     {
         let tenants = self.tenants.read();
 

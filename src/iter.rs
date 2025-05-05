@@ -25,7 +25,7 @@ fn possible_predecessor(s: &[u8]) -> Option<Vec<u8>> {
 }
 
 macro_rules! iter_try {
-    ($e:expr) => {
+    ($e:expr_2021) => {
         match $e {
             Ok(item) => item,
             Err(e) => return Some(Err(e)),
@@ -59,10 +59,10 @@ impl Iter {
 
     fn bounds_collapsed(&self) -> bool {
         match (&self.lo, &self.hi) {
-            (Bound::Included(ref start), Bound::Included(ref end))
-            | (Bound::Included(ref start), Bound::Excluded(ref end))
-            | (Bound::Excluded(ref start), Bound::Included(ref end))
-            | (Bound::Excluded(ref start), Bound::Excluded(ref end)) => {
+            (Bound::Included(start), Bound::Included(end))
+            | (Bound::Included(start), Bound::Excluded(end))
+            | (Bound::Excluded(start), Bound::Included(end))
+            | (Bound::Excluded(start), Bound::Excluded(end)) => {
                 start > end
             }
             _ => false,
@@ -86,15 +86,14 @@ impl Iter {
 
     pub(crate) fn next_inner(&mut self) -> Option<<Self as Iterator>::Item> {
         let guard = pin();
-        let (mut pid, mut node) = if let (true, Some((pid, node))) =
-            (self.going_forward, self.cached_node.take())
-        {
+        let (mut pid, mut node) = match (self.going_forward, self.cached_node.take())
+        { (true, Some((pid, node))) => {
             (pid, node)
-        } else {
+        } _ => {
             let view =
                 iter_try!(self.tree.view_for_key(self.low_key(), &guard));
             (view.pid, view.deref().clone())
-        };
+        }};
 
         for _ in 0..MAX_LOOPS {
             if self.bounds_collapsed() {
@@ -118,7 +117,7 @@ impl Iter {
                 continue;
             }
 
-            if let Some((key, value)) = node.successor(&self.lo) {
+            match node.successor(&self.lo) { Some((key, value)) => {
                 self.lo = Bound::Excluded(key.clone());
                 self.cached_node = Some((pid, node));
                 self.going_forward = true;
@@ -133,12 +132,12 @@ impl Iter {
                     }
                     _ => return None,
                 }
-            } else if let Some(hi) = node.hi() {
+            } _ => if let Some(hi) = node.hi() {
                 self.lo = Bound::Included(hi.into());
                 continue;
             } else {
                 return None;
-            }
+            }}
         }
         panic!(
             "fucked up tree traversal next({:?}) on {:?}",
@@ -169,15 +168,14 @@ impl DoubleEndedIterator for Iter {
         let guard = pin();
         let _cc = concurrency_control::read();
 
-        let (mut pid, mut node) = if let (false, Some((pid, node))) =
-            (self.going_forward, self.cached_node.take())
-        {
+        let (mut pid, mut node) = match (self.going_forward, self.cached_node.take())
+        { (false, Some((pid, node))) => {
             (pid, node)
-        } else {
+        } _ => {
             let view =
                 iter_try!(self.tree.view_for_key(self.high_key(), &guard));
             (view.pid, view.deref().clone())
-        };
+        }};
 
         for _ in 0..MAX_LOOPS {
             if self.bounds_collapsed() {
@@ -201,7 +199,7 @@ impl DoubleEndedIterator for Iter {
                 continue;
             }
 
-            if let Some((key, value)) = node.predecessor(&self.hi) {
+            match node.predecessor(&self.hi) { Some((key, value)) => {
                 self.hi = Bound::Excluded(key.clone());
                 self.cached_node = Some((pid, node));
                 self.going_forward = false;
@@ -216,12 +214,12 @@ impl DoubleEndedIterator for Iter {
                     }
                     _ => return None,
                 }
-            } else if node.lo().is_empty() {
+            } _ => if node.lo().is_empty() {
                 return None;
             } else {
                 self.hi = Bound::Excluded(node.lo().into());
                 continue;
-            }
+            }}
         }
         panic!(
             "fucked up tree traversal next_back({:?}) on {:?}",

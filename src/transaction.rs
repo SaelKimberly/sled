@@ -125,7 +125,7 @@ impl fmt::Display for UnabortableTransactionError {
 impl std::error::Error for UnabortableTransactionError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            UnabortableTransactionError::Storage(ref e) => Some(e),
+            UnabortableTransactionError::Storage(e) => Some(e),
             _ => None,
         }
     }
@@ -190,7 +190,7 @@ impl<E: std::error::Error> std::error::Error
 {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            ConflictableTransactionError::Storage(ref e) => Some(e),
+            ConflictableTransactionError::Storage(e) => Some(e),
             _ => None,
         }
     }
@@ -224,7 +224,7 @@ impl<E: fmt::Display> fmt::Display for TransactionError<E> {
 impl<E: std::error::Error> std::error::Error for TransactionError<E> {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            TransactionError::Storage(ref e) => Some(e),
+            TransactionError::Storage(e) => Some(e),
             _ => None,
         }
     }

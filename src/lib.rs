@@ -163,7 +163,7 @@
 #![allow(clippy::comparison_chain)]
 
 macro_rules! io_fail {
-    ($config:expr, $e:expr) => {
+    ($config:expr_2021, $e:expr_2021) => {
         #[cfg(feature = "failpoints")]
         {
             debug_delay();
@@ -176,7 +176,7 @@ macro_rules! io_fail {
 }
 
 macro_rules! testing_assert {
-    ($($e:expr),*) => {
+    ($($e:expr_2021),*) => {
         #[cfg(feature = "for-internal-testing-only")]
         assert!($($e),*)
     };

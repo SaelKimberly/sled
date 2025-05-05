@@ -276,7 +276,11 @@ impl quickcheck::Arbitrary for CacheInfo {
     fn arbitrary<G: quickcheck::Gen>(g: &mut G) -> CacheInfo {
         use rand::Rng;
 
-        CacheInfo { ts: g.gen(), lsn: g.gen(), pointer: DiskPtr::arbitrary(g) }
+        CacheInfo {
+            ts: g.r#gen(),
+            lsn: g.r#gen(),
+            pointer: DiskPtr::arbitrary(g),
+        }
     }
 }
 
@@ -369,7 +373,7 @@ pub struct Page {
 impl Page {
     pub(in crate::pagecache) fn rss(&self) -> Option<u64> {
         match &self.update {
-            Some(Update::Node(ref node)) => Some(node.rss()),
+            Some(Update::Node(node)) => Some(node.rss()),
             _ => None,
         }
     }
@@ -1495,14 +1499,12 @@ impl PageCacheInner {
         loop {
             let mut page_ptr = new_page.take().unwrap();
             let log_reservation = match page_ptr.update.as_ref().unwrap() {
-                Update::Counter(ref c) => {
+                Update::Counter(c) => {
                     self.log.reserve(log_kind, pid, c, guard)?
                 }
-                Update::Meta(ref m) => {
-                    self.log.reserve(log_kind, pid, m, guard)?
-                }
+                Update::Meta(m) => self.log.reserve(log_kind, pid, m, guard)?,
                 Update::Free => self.log.reserve(log_kind, pid, &(), guard)?,
-                Update::Node(ref node) => {
+                Update::Node(node) => {
                     self.log.reserve(log_kind, pid, node, guard)?
                 }
                 other => {

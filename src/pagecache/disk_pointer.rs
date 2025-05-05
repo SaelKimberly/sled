@@ -45,7 +45,7 @@ impl DiskPtr {
     pub(crate) fn forget_heap_log_coordinates(&mut self) {
         match self {
             DiskPtr::Inline(_) => {}
-            DiskPtr::Heap(ref mut opt, _) => *opt = None,
+            DiskPtr::Heap(opt, _) => *opt = None,
         }
     }
 

@@ -696,11 +696,11 @@ mod qc {
     impl Arbitrary for MessageHeader {
         fn arbitrary<G: Gen>(g: &mut G) -> MessageHeader {
             MessageHeader {
-                crc32: g.gen(),
-                len: g.gen(),
+                crc32: g.r#gen(),
+                len: g.r#gen(),
                 kind: MessageKind::arbitrary(g),
                 segment_number: SegmentNumber(SpreadU64::arbitrary(g).0),
-                pid: g.gen(),
+                pid: g.r#gen(),
             }
         }
     }
@@ -758,28 +758,28 @@ mod qc {
 
     impl Arbitrary for DiskPtr {
         fn arbitrary<G: Gen>(g: &mut G) -> DiskPtr {
-            if g.gen() {
-                DiskPtr::Inline(g.gen())
+            if g.r#gen() {
+                DiskPtr::Inline(g.r#gen())
             } else {
-                DiskPtr::Heap(g.gen(), HeapId::arbitrary(g))
+                DiskPtr::Heap(g.r#gen(), HeapId::arbitrary(g))
             }
         }
     }
 
     impl Arbitrary for PageState {
         fn arbitrary<G: Gen>(g: &mut G) -> PageState {
-            if g.gen() {
+            if g.r#gen() {
                 // don't generate 255 because we add 1 to this
                 // number in PageState::serialize_into to account
                 // for the base fragment
                 let n = g.gen_range(0, 255);
 
-                let base = (g.gen(), DiskPtr::arbitrary(g));
+                let base = (g.r#gen(), DiskPtr::arbitrary(g));
                 let frags =
-                    (0..n).map(|_| (g.gen(), DiskPtr::arbitrary(g))).collect();
+                    (0..n).map(|_| (g.r#gen(), DiskPtr::arbitrary(g))).collect();
                 PageState::Present { base, frags }
             } else {
-                PageState::Free(g.gen(), DiskPtr::arbitrary(g))
+                PageState::Free(g.r#gen(), DiskPtr::arbitrary(g))
             }
         }
     }
@@ -787,9 +787,9 @@ mod qc {
     impl Arbitrary for Snapshot {
         fn arbitrary<G: Gen>(g: &mut G) -> Snapshot {
             Snapshot {
-                version: g.gen(),
-                stable_lsn: g.gen(),
-                active_segment: g.gen(),
+                version: g.r#gen(),
+                stable_lsn: g.r#gen(),
+                active_segment: g.r#gen(),
                 pt: Arbitrary::arbitrary(g),
             }
         }
@@ -800,7 +800,7 @@ mod qc {
 
     impl Arbitrary for SpreadI64 {
         fn arbitrary<G: Gen>(g: &mut G) -> SpreadI64 {
-            let uniform = g.gen::<i64>();
+            let uniform = g.r#gen::<i64>();
             let shift = g.gen_range(0, 64);
             SpreadI64(uniform >> shift)
         }
@@ -811,7 +811,7 @@ mod qc {
 
     impl Arbitrary for SpreadU64 {
         fn arbitrary<G: Gen>(g: &mut G) -> SpreadU64 {
-            let uniform = g.gen::<u64>();
+            let uniform = g.r#gen::<u64>();
             let shift = g.gen_range(0, 64);
             SpreadU64(uniform >> shift)
         }

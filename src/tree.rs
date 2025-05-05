@@ -220,14 +220,14 @@ impl Tree {
             return Ok(Ok(last_value_ivec));
         }
 
-        let frag = if let Some(value_ivec) = value.clone() {
+        let frag = match value.clone() { Some(value_ivec) => {
             if out_of_bounds(value_ivec.len()) {
                 bounds_error()?;
             }
             Link::Set(encoded_key, value_ivec)
-        } else {
+        } _ => {
             Link::Del(encoded_key)
-        };
+        }};
 
         let link =
             self.context.pagecache.link(pid, node_view.0, frag, guard)?;
@@ -1466,7 +1466,7 @@ impl Tree {
     /// ```
     pub fn pop_max(&self) -> Result<Option<(IVec, IVec)>> {
         loop {
-            if let Some(first_res) = self.iter().next_back() {
+            match self.iter().next_back() { Some(first_res) => {
                 let first = first_res?;
                 if self
                     .compare_and_swap::<_, _, &[u8]>(
@@ -1480,10 +1480,10 @@ impl Tree {
                     return Ok(Some(first));
                 }
             // try again
-            } else {
+            } _ => {
                 trace!("pop_max removed nothing from empty tree");
                 return Ok(None);
-            }
+            }}
         }
     }
 
@@ -1513,7 +1513,7 @@ impl Tree {
     /// ```
     pub fn pop_min(&self) -> Result<Option<(IVec, IVec)>> {
         loop {
-            if let Some(first_res) = self.iter().next() {
+            match self.iter().next() { Some(first_res) => {
                 let first = first_res?;
                 if self
                     .compare_and_swap::<_, _, &[u8]>(
@@ -1527,10 +1527,10 @@ impl Tree {
                     return Ok(Some(first));
                 }
             // try again
-            } else {
+            } _ => {
                 trace!("pop_min removed nothing from empty tree");
                 return Ok(None);
-            }
+            }}
         }
     }
 
@@ -2429,7 +2429,7 @@ impl Tree {
                 };
 
                 if left_node.is_index {
-                    if let Some(next_pid) = left_node.iter_index_pids().next() {
+                    match left_node.iter_index_pids().next() { Some(next_pid) => {
                         pid = next_pid;
                         left_most = next_pid;
                         log::trace!("set left_most to {}", next_pid);
@@ -2446,9 +2446,9 @@ impl Tree {
                             &mut expected_pids,
                             &mut referenced_pids,
                         );
-                    } else {
+                    } _ => {
                         panic!("trying to debug print empty index node");
-                    }
+                    }}
                 } else {
                     // we've reached the end of our tree, all leafs are on
                     // the lowest level.

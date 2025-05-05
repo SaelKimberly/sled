@@ -181,15 +181,17 @@ impl<T> Pointable for T {
     }
 
     unsafe fn deref<'a>(ptr: usize) -> &'a Self {
-        &*(ptr as *const T)
+        unsafe { &*(ptr as *const T) }
     }
 
     unsafe fn deref_mut<'a>(ptr: usize) -> &'a mut Self {
-        &mut *(ptr as *mut T)
+        unsafe { &mut *(ptr as *mut T) }
     }
 
     unsafe fn drop(ptr: usize) {
-        drop(Box::from_raw(ptr as *mut T));
+        unsafe {
+            drop(Box::from_raw(ptr as *mut T));
+        }
     }
 }
 
@@ -228,32 +230,43 @@ impl<T> Pointable for [MaybeUninit<T>] {
     type Init = usize;
 
     unsafe fn init(len: Self::Init) -> usize {
-        let size =
-            mem::size_of::<Array<T>>() + mem::size_of::<MaybeUninit<T>>() * len;
-        let align = mem::align_of::<Array<T>>();
-        let layout = alloc::Layout::from_size_align(size, align).unwrap();
-        let ptr = alloc::alloc(layout) as *mut Array<T>;
-        (*ptr).size = size;
-        ptr as usize
+        unsafe {
+            let size = mem::size_of::<Array<T>>()
+                + mem::size_of::<MaybeUninit<T>>() * len;
+            let align = mem::align_of::<Array<T>>();
+            let layout = alloc::Layout::from_size_align(size, align).unwrap();
+            let ptr = alloc::alloc(layout) as *mut Array<T>;
+            (*ptr).size = size;
+            ptr as usize
+        }
     }
 
     unsafe fn deref<'a>(ptr: usize) -> &'a Self {
-        let array = &*(ptr as *const Array<T>);
-        slice::from_raw_parts(array.elements.as_ptr(), array.size)
+        unsafe {
+            let array = &*(ptr as *const Array<T>);
+            slice::from_raw_parts(array.elements.as_ptr(), array.size)
+        }
     }
 
     unsafe fn deref_mut<'a>(ptr: usize) -> &'a mut Self {
-        let array = &*(ptr as *mut Array<T>);
-        slice::from_raw_parts_mut(array.elements.as_ptr() as *mut _, array.size)
+        unsafe {
+            let array = &*(ptr as *mut Array<T>);
+            slice::from_raw_parts_mut(
+                array.elements.as_ptr() as *mut _,
+                array.size,
+            )
+        }
     }
 
     unsafe fn drop(ptr: usize) {
-        let array = &*(ptr as *mut Array<T>);
-        let size = mem::size_of::<Array<T>>()
-            + mem::size_of::<MaybeUninit<T>>() * array.size;
-        let align = mem::align_of::<Array<T>>();
-        let layout = alloc::Layout::from_size_align(size, align).unwrap();
-        alloc::dealloc(ptr as *mut u8, layout);
+        unsafe {
+            let array = &*(ptr as *mut Array<T>);
+            let size = mem::size_of::<Array<T>>()
+                + mem::size_of::<MaybeUninit<T>>() * array.size;
+            let align = mem::align_of::<Array<T>>();
+            let layout = alloc::Layout::from_size_align(size, align).unwrap();
+            alloc::dealloc(ptr as *mut u8, layout);
+        }
     }
 }
 
@@ -561,9 +574,11 @@ impl<T> Owned<T> {
     /// The given `raw` should have been derived from `Owned`, and one `raw` should not be converted
     /// back by `Owned::from_raw()` multiple times.
     pub(crate) unsafe fn from_raw(raw_ptr: *mut T) -> Owned<T> {
-        let raw = raw_ptr as usize;
-        ensure_aligned::<T>(raw);
-        Self::from_usize(raw)
+        unsafe {
+            let raw = raw_ptr as usize;
+            ensure_aligned::<T>(raw);
+            Self::from_usize(raw)
+        }
     }
 
     /// Allocates `value` on the heap and returns a new owned pointer pointing to it.
@@ -752,8 +767,10 @@ impl<'g, T: ?Sized + Pointable> Shared<'g, T> {
     #[allow(clippy::trivially_copy_pass_by_ref)]
     #[allow(clippy::should_implement_trait)]
     pub(crate) unsafe fn deref(&self) -> &'g T {
-        let (raw, _) = decompose_tag::<T>(self.data);
-        T::deref(raw)
+        unsafe {
+            let (raw, _) = decompose_tag::<T>(self.data);
+            T::deref(raw)
+        }
     }
 
     /// Converts the pointer to a reference.
@@ -775,8 +792,10 @@ impl<'g, T: ?Sized + Pointable> Shared<'g, T> {
     /// `Release` and `Acquire` orderings.
     #[allow(clippy::trivially_copy_pass_by_ref)]
     pub(crate) unsafe fn as_ref(&self) -> Option<&'g T> {
-        let (raw, _) = decompose_tag::<T>(self.data);
-        if raw == 0 { None } else { Some(T::deref(raw)) }
+        unsafe {
+            let (raw, _) = decompose_tag::<T>(self.data);
+            if raw == 0 { None } else { Some(T::deref(raw)) }
+        }
     }
 
     /// Takes ownership of the pointee.
@@ -790,11 +809,13 @@ impl<'g, T: ?Sized + Pointable> Shared<'g, T> {
     /// This method may be called only if the pointer is valid and nobody else is holding a
     /// reference to the same object.
     pub(crate) unsafe fn into_owned(self) -> Owned<T> {
-        debug_assert!(
-            !self.is_null(),
-            "converting a null `Shared` into `Owned`"
-        );
-        Owned::from_usize(self.data)
+        unsafe {
+            debug_assert!(
+                !self.is_null(),
+                "converting a null `Shared` into `Owned`"
+            );
+            Owned::from_usize(self.data)
+        }
     }
 
     /// Returns the tag stored within the pointer.
