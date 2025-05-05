@@ -133,6 +133,7 @@ fn concurrent_logging() -> Result<()> {
         let t1 = thread::Builder::new()
             .name("c1".to_string())
             .spawn(move || {
+                let db = &db;
                 let log = &db.context.pagecache.log;
                 for i in 0..1_000 {
                     let buf = IVec::from(vec![1; i % buf_len]);
@@ -148,6 +149,7 @@ fn concurrent_logging() -> Result<()> {
         let t2 = thread::Builder::new()
             .name("c2".to_string())
             .spawn(move || {
+                let db2 = &db2;
                 let log = &db2.context.pagecache.log;
                 for i in 0..1_000 {
                     let buf = IVec::from(vec![2; i % buf_len]);
@@ -163,6 +165,7 @@ fn concurrent_logging() -> Result<()> {
         let t3 = thread::Builder::new()
             .name("c3".to_string())
             .spawn(move || {
+                let db3 = &db3;
                 let log = &db3.context.pagecache.log;
                 for i in 0..1_000 {
                     let buf = IVec::from(vec![3; i % buf_len]);
@@ -178,6 +181,7 @@ fn concurrent_logging() -> Result<()> {
         let t4 = thread::Builder::new()
             .name("c4".to_string())
             .spawn(move || {
+                let db4 = &db4;
                 let log = &db4.context.pagecache.log;
                 for i in 0..1_000 {
                     let buf = IVec::from(vec![4; i % buf_len]);
@@ -192,6 +196,7 @@ fn concurrent_logging() -> Result<()> {
         let t5 = thread::Builder::new()
             .name("c5".to_string())
             .spawn(move || {
+                let db5 = &db5;
                 let log = &db5.context.pagecache.log;
                 for i in 0..1_000 {
                     let guard = pin();
@@ -207,6 +212,7 @@ fn concurrent_logging() -> Result<()> {
         let t6 = thread::Builder::new()
             .name("c6".to_string())
             .spawn(move || {
+                let db6 = &db6;
                 let log = &db6.context.pagecache.log;
                 for i in 0..1_000 {
                     let buf = IVec::from(vec![6; i % buf_len]);
