@@ -170,7 +170,7 @@ struct CacheAccessIter<'a> {
     current_block: *mut AccessBlock,
 }
 
-impl<'a> Iterator for CacheAccessIter<'a> {
+impl Iterator for CacheAccessIter<'_> {
     type Item = CacheAccess;
 
     fn next(&mut self) -> Option<CacheAccess> {

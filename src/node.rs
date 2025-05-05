@@ -182,7 +182,7 @@ impl<'a> From<&KeyRef<'a>> for IVec {
     }
 }
 
-impl<'a> KeyRef<'a> {
+impl KeyRef<'_> {
     const fn unwrap_slice(&self) -> &[u8] {
         if let KeyRef::Slice(s) = self {
             s
@@ -463,7 +463,7 @@ impl<'a> Iterator for Iter<'a> {
     }
 }
 
-impl<'a> DoubleEndedIterator for Iter<'a> {
+impl DoubleEndedIterator for Iter<'_> {
     fn next_back(&mut self) -> Option<Self::Item> {
         loop {
             if self.next_back_a.is_none() {
@@ -2143,7 +2143,7 @@ impl Inner {
             u8::try_from(prefix_len).unwrap(),
             self.is_index,
             other_next,
-            &*items,
+            &items,
         );
 
         ret.rewrite_generations =
@@ -2262,8 +2262,7 @@ impl Inner {
 
     fn iter_keys(
         &self,
-    ) -> impl Iterator<Item = KeyRef<'_>>
-           + ExactSizeIterator
+    ) -> impl ExactSizeIterator<Item = KeyRef<'_>>
            + DoubleEndedIterator
            + Clone {
         (0..self.children()).map(move |idx| self.index_key(idx))
@@ -2272,8 +2271,7 @@ impl Inner {
     fn iter_index_pids(
         &self,
     ) -> impl '_
-           + Iterator<Item = u64>
-           + ExactSizeIterator
+           + ExactSizeIterator<Item = u64>
            + DoubleEndedIterator
            + Clone {
         assert!(self.is_index);
@@ -2284,7 +2282,7 @@ impl Inner {
 
     fn iter_values(
         &self,
-    ) -> impl Iterator<Item = &[u8]> + ExactSizeIterator + DoubleEndedIterator + Clone
+    ) -> impl ExactSizeIterator<Item = &[u8]> + DoubleEndedIterator + Clone
     {
         (0..self.children()).map(move |idx| self.index_value(idx))
     }
@@ -2730,7 +2728,7 @@ mod test {
                 .collect();
 
             let mut ret =
-                Inner::new(&lo, hi.map(|h| h), 0, false, None, &children_ref);
+                Inner::new(&lo, hi, 0, false, None, &children_ref);
 
             ret.activity_sketch = g.gen();
 
@@ -2858,7 +2856,6 @@ mod test {
                 shrink_lo
                     .into_iter()
                     .chain(shrink_hi)
-                    .into_iter()
                     .chain(item_removals)
                     .chain(item_reductions)
             })

@@ -669,7 +669,7 @@ where
     iter.collect()
 }
 
-impl<'a, 'b, T> Iterator for ConsumeSequence<'a, 'b, T>
+impl<T> Iterator for ConsumeSequence<'_, '_, T>
 where
     T: Serialize,
 {

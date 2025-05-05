@@ -57,7 +57,7 @@ pub(crate) use self::{
 };
 
 pub use self::{
-    constants::{MAX_MSG_HEADER_LEN, MAX_SPACE_AMPLIFICATION, SEG_HEADER_LEN},
+    constants::{MAX_MSG_HEADER_LEN, SEG_HEADER_LEN},
     disk_pointer::DiskPtr,
     logger::{Log, LogRead},
 };
@@ -233,7 +233,7 @@ pub(crate) const fn u32_to_arr(number: u32) -> [u8; 4] {
 #[derive(Debug, Clone, Copy)]
 pub struct NodeView<'g>(pub(crate) PageView<'g>);
 
-impl<'g> Deref for NodeView<'g> {
+impl Deref for NodeView<'_> {
     type Target = Node;
     fn deref(&self) -> &Node {
         self.0.as_node()
@@ -243,7 +243,7 @@ impl<'g> Deref for NodeView<'g> {
 #[derive(Debug, Clone, Copy)]
 pub struct MetaView<'g>(PageView<'g>);
 
-impl<'g> Deref for MetaView<'g> {
+impl Deref for MetaView<'_> {
     type Target = Meta;
     fn deref(&self) -> &Meta {
         self.0.as_meta()
@@ -256,7 +256,7 @@ pub struct PageView<'g> {
     pub(in crate::pagecache) entry: &'g Atomic<Page>,
 }
 
-impl<'g> Deref for PageView<'g> {
+impl Deref for PageView<'_> {
     type Target = Page;
 
     fn deref(&self) -> &Page {
@@ -348,7 +348,7 @@ pub struct RecoveryGuard<'a> {
     batch_res: Reservation<'a>,
 }
 
-impl<'a> RecoveryGuard<'a> {
+impl RecoveryGuard<'_> {
     /// Writes the last LSN for a batch into an earlier
     /// reservation, releasing it.
     pub(crate) fn seal_batch(self) -> Result<()> {
@@ -464,7 +464,7 @@ impl Debug for PageCache {
         &self,
         f: &mut fmt::Formatter<'_>,
     ) -> std::result::Result<(), fmt::Error> {
-        f.write_str(&*format!(
+        f.write_str(&format!(
             "PageCache {{ max: {:?} free: {:?} }}\n",
             *self.next_pid_to_allocate.lock(),
             self.free
@@ -724,7 +724,7 @@ impl PageCache {
             use std::time::{SystemTime, UNIX_EPOCH};
 
             thread_local! {
-                pub static COUNT: RefCell<u32> = RefCell::new(1);
+                pub static COUNT: RefCell<u32> = const { RefCell::new(1) };
             }
 
             let time_now =
@@ -1166,7 +1166,7 @@ impl PageCacheInner {
             use std::time::{SystemTime, UNIX_EPOCH};
 
             thread_local! {
-                pub static COUNT: RefCell<u32> = RefCell::new(1);
+                pub static COUNT: RefCell<u32> = const { RefCell::new(1) };
             }
 
             let time_now =
@@ -1380,14 +1380,13 @@ impl PageCacheInner {
                     }
                 };
 
-                let res = self.cas_page(pid, key, update, true, guard).map(
+                let res = self.cas_page(pid, key, update, true, guard).inspect(
                     |res| {
                         trace!(
                             "rewriting pid {} success: {}",
                             pid,
                             res.is_ok()
                         );
-                        res
                     },
                 )?;
                 if res.is_ok() {
@@ -1853,12 +1852,12 @@ impl PageCacheInner {
 
     /// Compare-and-swap the `Meta` mapping for a given
     /// identifier.
-    pub(crate) fn cas_root_in_meta<'g>(
+    pub(crate) fn cas_root_in_meta(
         &self,
         name: &[u8],
         old_opt: Option<PageId>,
         new_opt: Option<PageId>,
-        guard: &'g Guard,
+        guard: &Guard,
     ) -> Result<std::result::Result<(), Option<PageId>>> {
         loop {
             let meta_view = self.get_meta(guard);

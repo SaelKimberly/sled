@@ -11,13 +11,13 @@ pub struct FastLockGuard<'a, T> {
     mu: &'a FastLock<T>,
 }
 
-impl<'a, T> Drop for FastLockGuard<'a, T> {
+impl<T> Drop for FastLockGuard<'_, T> {
     fn drop(&mut self) {
         assert!(self.mu.lock.swap(false, Release));
     }
 }
 
-impl<'a, T> Deref for FastLockGuard<'a, T> {
+impl<T> Deref for FastLockGuard<'_, T> {
     type Target = T;
 
     fn deref(&self) -> &T {
@@ -28,7 +28,7 @@ impl<'a, T> Deref for FastLockGuard<'a, T> {
     }
 }
 
-impl<'a, T> DerefMut for FastLockGuard<'a, T> {
+impl<T> DerefMut for FastLockGuard<'_, T> {
     fn deref_mut(&mut self) -> &mut T {
         #[allow(unsafe_code)]
         unsafe {

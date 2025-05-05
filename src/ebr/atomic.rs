@@ -709,7 +709,7 @@ impl<T: ?Sized + Pointable> Pointer<T> for Shared<'_, T> {
     }
 }
 
-impl<'g, T> Shared<'g, T> {
+impl<T> Shared<'_, T> {
     /// Converts the pointer to a raw pointer (without the tag).
     #[allow(clippy::trivially_copy_pass_by_ref)]
     pub(crate) fn as_raw(&self) -> *const T {

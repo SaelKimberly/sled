@@ -16,7 +16,7 @@ pub struct Reservation<'a> {
     pub(super) header_len: usize,
 }
 
-impl<'a> Drop for Reservation<'a> {
+impl Drop for Reservation<'_> {
     fn drop(&mut self) {
         // We auto-abort if the user never uses a reservation.
         if !self.flushed {
@@ -27,7 +27,7 @@ impl<'a> Drop for Reservation<'a> {
     }
 }
 
-impl<'a> Reservation<'a> {
+impl Reservation<'_> {
     /// Cancel the reservation, placing a failed flush on disk, returning
     /// the (cancelled) log sequence number and file offset.
     pub fn abort(mut self) -> Result<(Lsn, DiskPtr)> {

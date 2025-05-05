@@ -37,7 +37,7 @@ pub(crate) enum Protector<'a> {
     None(&'a AtomicUsize),
 }
 
-impl<'a> Drop for Protector<'a> {
+impl Drop for Protector<'_> {
     fn drop(&mut self) {
         if let Protector::None(active) = self {
             active.fetch_sub(1, Release);

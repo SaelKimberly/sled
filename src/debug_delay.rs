@@ -34,7 +34,7 @@ pub fn debug_delay() {
     });
 
     thread_local!(
-        static LOCAL_DELAYS: std::cell::RefCell<usize> = std::cell::RefCell::new(0)
+        static LOCAL_DELAYS: std::cell::RefCell<usize> = const { std::cell::RefCell::new(0) }
     );
 
     if cfg!(feature = "miri_optimizations") {
@@ -81,7 +81,7 @@ fn random(n: u32) -> u32 {
     use std::num::Wrapping;
 
     thread_local! {
-        static RNG: Cell<Wrapping<u32>> = Cell::new(Wrapping(1_406_868_647));
+        static RNG: Cell<Wrapping<u32>> = const { Cell::new(Wrapping(1_406_868_647)) };
     }
 
     #[allow(clippy::cast_possible_truncation)]

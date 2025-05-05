@@ -16,11 +16,11 @@ pub(crate) struct View<'g> {
     pub pid: PageId,
 }
 
-impl<'g> Deref for View<'g> {
+impl Deref for View<'_> {
     type Target = Node;
 
     fn deref(&self) -> &Node {
-        &*self.node_view
+        &self.node_view
     }
 }
 

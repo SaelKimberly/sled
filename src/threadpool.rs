@@ -21,7 +21,7 @@ mod queue {
     use crate::{debug_delay, Lazy, OneShot};
 
     thread_local! {
-        static WORKER: RefCell<bool> = RefCell::new(false);
+        static WORKER: RefCell<bool> = const { RefCell::new(false) };
     }
 
     fn is_worker() -> bool {
