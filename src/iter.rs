@@ -1,7 +1,7 @@
 use std::ops::{Bound, Deref};
 
 #[cfg(feature = "metrics")]
-use crate::{Measure, M};
+use crate::{M, Measure};
 
 use super::*;
 

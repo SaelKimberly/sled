@@ -3,7 +3,7 @@ use std::{
     pin::Pin,
     sync::{
         atomic::{AtomicBool, Ordering::Relaxed},
-        mpsc::{sync_channel, Receiver, SyncSender, TryRecvError},
+        mpsc::{Receiver, SyncSender, TryRecvError, sync_channel},
     },
     task::{Context, Poll, Waker},
     time::{Duration, Instant},
@@ -174,7 +174,7 @@ impl Future for Subscriber {
                     Ok(future_rx) => future_rx,
                     Err(TryRecvError::Empty) => break,
                     Err(TryRecvError::Disconnected) => {
-                        return Poll::Ready(None)
+                        return Poll::Ready(None);
                     }
                 }
             };

@@ -1,11 +1,11 @@
 use std::fs::File;
 
 use super::{
-    arr_to_lsn, arr_to_u32, assert_usize, header, iobuf, lsn_to_arr,
-    pread_exact, pread_exact_or_eof, roll_iobuf, u32_to_arr, Arc, BasedBuf,
-    DiskPtr, HeapId, IoBuf, IoBufs, LogKind, LogOffset, Lsn, MessageKind,
-    Reservation, Serialize, Snapshot, BATCH_MANIFEST_PID, COUNTER_PID,
-    MAX_MSG_HEADER_LEN, META_PID, SEG_HEADER_LEN,
+    Arc, BATCH_MANIFEST_PID, BasedBuf, COUNTER_PID, DiskPtr, HeapId, IoBuf,
+    IoBufs, LogKind, LogOffset, Lsn, MAX_MSG_HEADER_LEN, META_PID, MessageKind,
+    Reservation, SEG_HEADER_LEN, Serialize, Snapshot, arr_to_lsn, arr_to_u32,
+    assert_usize, header, iobuf, lsn_to_arr, pread_exact, pread_exact_or_eof,
+    roll_iobuf, u32_to_arr,
 };
 
 use crate::*;
@@ -303,9 +303,7 @@ impl Log {
 
             trace!(
                 "reserving buf of len {} for pid {} with kind {:?}",
-                inline_buf_len,
-                pid,
-                kind
+                inline_buf_len, pid, kind
             );
 
             // try to claim space
@@ -380,9 +378,7 @@ impl Log {
 
             trace!(
                 "reserved {} bytes at lsn {} lid {}",
-                inline_buf_len,
-                reservation_lsn,
-                reservation_lid,
+                inline_buf_len, reservation_lsn, reservation_lid,
             );
 
             self.iobufs
@@ -745,9 +741,7 @@ pub(crate) fn read_message<R: ReadAt>(
     let message_offset = len_before - len_after;
     trace!(
         "read message header at lid {} with header length {}: {:?}",
-        lid,
-        message_offset,
-        header
+        lid, message_offset, header
     );
 
     let ceiling = seg_start + segment_len as LogOffset;
@@ -794,10 +788,7 @@ pub(crate) fn read_message<R: ReadAt>(
     if crc32 != header.crc32 {
         trace!(
             "read a message with a bad checksum with header {:?} msg len: {} expected: {} actual: {}",
-            header,
-            header_len,
-            header.crc32,
-            crc32
+            header, header_len, header.crc32, crc32
         );
         return Ok(LogRead::Corrupted);
     }
@@ -833,8 +824,7 @@ pub(crate) fn read_message<R: ReadAt>(
                     assert_eq!(header.kind, kind);
                     trace!(
                         "read a successful heap message for heap {:?} in segment number {:?}",
-                        heap_id,
-                        header.segment_number,
+                        heap_id, header.segment_number,
                     );
 
                     Ok(LogRead::Heap(header, buf2, heap_id, inline_len))

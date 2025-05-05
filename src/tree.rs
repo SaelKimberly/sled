@@ -42,7 +42,7 @@ const fn bounds_error() -> Result<()> {
     Err(Error::Unsupported(
         "Keys and values are limited to \
         128gb on 64-bit platforms and
-        512mb on 32-bit platforms."
+        512mb on 32-bit platforms.",
     ))
 }
 
@@ -948,7 +948,7 @@ impl Tree {
         } else {
             Err(Error::ReportableBug(
                 "threadpool failed to complete \
-                action before shutdown"
+                action before shutdown",
             ))
         }
     }
@@ -1163,7 +1163,7 @@ impl Tree {
             return Err(Error::Unsupported(
                 "must set a merge operator on this Tree \
                  before calling merge by calling \
-                 Tree::set_merge_operator"
+                 Tree::set_merge_operator",
             ));
         }
 
@@ -1881,8 +1881,7 @@ impl Tree {
                     .get();
                 trace!(
                     "seeking right on undershot node, from {} to {}",
-                    cursor,
-                    right_sibling
+                    cursor, right_sibling
                 );
                 cursor = right_sibling;
                 if unsplit_parent_opt.is_none() && parent_view_opt.is_some() {
@@ -2089,8 +2088,7 @@ impl Tree {
                     trace!(
                         "ParentMergeConfirm succeeded on parent pid {}, \
                          now freeing child pid {}",
-                        parent_view.pid,
-                        child_pid
+                        parent_view.pid, child_pid
                     );
                     return Ok(true);
                 }
@@ -2128,8 +2126,7 @@ impl Tree {
                             "someone else must have already \
                              completed the merge, and now the \
                              merging child for parent pid {} is {:?}",
-                            new_parent_view.pid,
-                            new_parent_view.merging_child
+                            new_parent_view.pid, new_parent_view.merging_child
                         );
                         return Ok(false);
                     }
@@ -2148,8 +2145,7 @@ impl Tree {
     ) -> Result<()> {
         trace!(
             "merging child pid {} of parent pid {}",
-            child_pid,
-            parent_view.pid
+            child_pid, parent_view.pid
         );
 
         let child_view = if let Some(merging_child) =
@@ -2222,8 +2218,7 @@ impl Tree {
             if cursor_view.next.map(NonZeroU64::get) == Some(child_pid) {
                 trace!(
                     "found left sibling pid {} points to merging node pid {}",
-                    cursor_view.pid,
-                    child_pid
+                    cursor_view.pid, child_pid
                 );
                 let cursor_node = cursor_view.node_view;
 
@@ -2238,8 +2233,7 @@ impl Tree {
                     Ok(_) => {
                         trace!(
                             "merged node pid {} into left sibling pid {}",
-                            child_pid,
-                            cursor_pid
+                            child_pid, cursor_pid
                         );
                         break;
                     }
@@ -2247,9 +2241,7 @@ impl Tree {
                         trace!(
                             "failed to merge pid {} into \
                              pid {} since pid {} doesn't exist anymore",
-                            child_pid,
-                            cursor_pid,
-                            cursor_pid
+                            child_pid, cursor_pid, cursor_pid
                         );
                         return Ok(());
                     }
@@ -2257,8 +2249,7 @@ impl Tree {
                         trace!(
                             "failed to merge pid {} into \
                              pid {} due to cas failure",
-                            child_pid,
-                            cursor_pid
+                            child_pid, cursor_pid
                         );
                         continue;
                     }
@@ -2279,8 +2270,7 @@ impl Tree {
                 if let Some(next) = cursor_view.next {
                     trace!(
                         "traversing from cursor pid {} to right sibling pid {}",
-                        cursor_pid,
-                        next
+                        cursor_pid, next
                     );
                     cursor_pid = next.get();
                 } else {
@@ -2297,8 +2287,7 @@ impl Tree {
         trace!(
             "trying to install parent merge \
              confirmation of merged child pid {} for parent pid {}",
-            child_pid,
-            parent_view.pid
+            child_pid, parent_view.pid
         );
 
         let should_continue =

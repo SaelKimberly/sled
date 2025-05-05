@@ -775,11 +775,7 @@ impl<'g, T: ?Sized + Pointable> Shared<'g, T> {
     #[allow(clippy::trivially_copy_pass_by_ref)]
     pub(crate) unsafe fn as_ref(&self) -> Option<&'g T> {
         let (raw, _) = decompose_tag::<T>(self.data);
-        if raw == 0 {
-            None
-        } else {
-            Some(T::deref(raw))
-        }
+        if raw == 0 { None } else { Some(T::deref(raw)) }
     }
 
     /// Takes ownership of the pointee.

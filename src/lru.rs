@@ -9,11 +9,11 @@ use std::{
 };
 
 use crate::{
+    FastSet8, Guard, PageId,
     atomic_shim::AtomicU64,
     debug_delay,
     dll::{DoublyLinkedList, Node},
     fastlock::FastLock,
-    FastSet8, Guard, PageId,
 };
 
 #[cfg(any(test, feature = "lock_free_delays"))]

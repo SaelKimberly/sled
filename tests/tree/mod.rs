@@ -1,7 +1,7 @@
 use std::{collections::BTreeMap, convert::TryInto, fmt, panic};
 
 use quickcheck::{Arbitrary, Gen, RngCore};
-use rand::{rngs::StdRng, Rng, SeedableRng};
+use rand::{Rng, SeedableRng, rngs::StdRng};
 use rand_distr::{Distribution, Gamma};
 
 use sled::*;

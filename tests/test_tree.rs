@@ -3,8 +3,8 @@ mod tree;
 
 use std::{
     sync::{
-        atomic::{AtomicUsize, Ordering::SeqCst},
         Arc, Barrier,
+        atomic::{AtomicUsize, Ordering::SeqCst},
     },
     time::Duration,
 };
@@ -18,8 +18,9 @@ use sled::Transactional;
 use sled::{transaction::*, *};
 
 use tree::{
-    prop_tree_matches_btreemap, Key,
+    Key,
     Op::{self, *},
+    prop_tree_matches_btreemap,
 };
 
 const N_THREADS: usize = 10;

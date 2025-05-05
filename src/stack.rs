@@ -8,7 +8,7 @@ use std::{
 
 use crate::{
     debug_delay,
-    ebr::{pin, Atomic, Guard, Owned, Shared},
+    ebr::{Atomic, Guard, Owned, Shared, pin},
 };
 
 /// A node in the lock-free `Stack`.
@@ -228,8 +228,8 @@ where
 #[test]
 #[cfg(not(miri))] // can't create threads
 fn basic_functionality() {
-    use crate::pin;
     use crate::CachePadded;
+    use crate::pin;
     use std::sync::Arc;
     use std::thread;
 

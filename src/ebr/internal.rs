@@ -50,7 +50,7 @@ use super::deferred::Deferred;
 use super::epoch::{AtomicEpoch, Epoch};
 use super::list::{Entry, IsElement, IterError, List};
 use super::queue::{Queue, SIZE_HINT};
-use super::{unprotected, Guard};
+use super::{Guard, unprotected};
 
 /// Maximum number of objects a bag can contain.
 #[cfg(not(feature = "lock_free_delays"))]

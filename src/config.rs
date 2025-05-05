@@ -8,7 +8,7 @@ use std::{
     sync::atomic::AtomicUsize,
 };
 
-use crate::pagecache::{arr_to_u32, u32_to_arr, Heap};
+use crate::pagecache::{Heap, arr_to_u32, u32_to_arr};
 use crate::*;
 
 const DEFAULT_PATH: &str = "default.sled";
@@ -537,17 +537,19 @@ impl Config {
         {
             use fs2::FileExt;
 
-            let try_lock =
-                if cfg!(any(feature = "for-internal-testing-only", feature = "light_testing")) {
-                    // we block here because during testing
-                    // there are many filesystem race condition
-                    // that happen, causing locks to be held
-                    // for long periods of time, so we should
-                    // block to wait on reopening files.
-                    file.lock_exclusive()
-                } else {
-                    file.try_lock_exclusive()
-                };
+            let try_lock = if cfg!(any(
+                feature = "for-internal-testing-only",
+                feature = "light_testing"
+            )) {
+                // we block here because during testing
+                // there are many filesystem race condition
+                // that happen, causing locks to be held
+                // for long periods of time, so we should
+                // block to wait on reopening files.
+                file.lock_exclusive()
+            } else {
+                file.try_lock_exclusive()
+            };
 
             if try_lock.is_err() {
                 return Err(Error::Io(

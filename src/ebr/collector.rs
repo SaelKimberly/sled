@@ -2,8 +2,8 @@
 use core::fmt;
 use std::sync::Arc;
 
-use super::internal::{Global, Local};
 use super::Guard;
+use super::internal::{Global, Local};
 use crate::Lazy;
 
 /// The global data for the default garbage collector.

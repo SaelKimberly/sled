@@ -264,11 +264,11 @@ pub use self::{
     config::RunningConfig,
     lazy::Lazy,
     pagecache::{
+        BatchManifest, DiskPtr, Log, LogKind, LogOffset, LogRead, Lsn,
+        PageCache, PageId,
         constants::{
             MAX_MSG_HEADER_LEN, MAX_SPACE_AMPLIFICATION, SEG_HEADER_LEN,
         },
-        BatchManifest, DiskPtr, Log, LogKind, LogOffset, LogRead, Lsn,
-        PageCache, PageId,
     },
     serialization::Serialize,
 };
@@ -288,7 +288,7 @@ pub use self::{
 #[cfg(feature = "metrics")]
 use self::{
     histogram::Histogram,
-    metrics::{clock, Measure, M},
+    metrics::{M, Measure, clock},
 };
 
 use {
@@ -299,8 +299,8 @@ use {
         concurrency_control::Protector,
         context::Context,
         ebr::{
-            pin as crossbeam_pin, Atomic, Guard as CrossbeamGuard, Owned,
-            Shared,
+            Atomic, Guard as CrossbeamGuard, Owned, Shared,
+            pin as crossbeam_pin,
         },
         fastcmp::fastcmp,
         lru::Lru,
@@ -312,7 +312,7 @@ use {
         tree::TreeInner,
     },
     log::{debug, error, trace, warn},
-    pagecache::{constants::MAX_BLOB, RecoveryGuard},
+    pagecache::{RecoveryGuard, constants::MAX_BLOB},
     parking_lot::{Condvar, Mutex, RwLock},
     std::{
         collections::BTreeMap,
@@ -320,11 +320,11 @@ use {
         fmt::{self, Debug},
         io::{Read, Write},
         sync::{
+            Arc,
             atomic::{
                 AtomicUsize,
                 Ordering::{Acquire, Relaxed, Release, SeqCst},
             },
-            Arc,
         },
     },
 };

@@ -1,8 +1,8 @@
 use crate::*;
 
 use super::{
-    arr_to_u32, pwrite_all, raw_segment_iter_from, u32_to_arr, u64_to_arr,
     BasedBuf, DiskPtr, HeapId, LogIter, LogKind, LogOffset, Lsn, MessageKind,
+    arr_to_u32, pwrite_all, raw_segment_iter_from, u32_to_arr, u64_to_arr,
 };
 
 /// A snapshot of the state required to quickly restart
@@ -148,9 +148,7 @@ impl Snapshot {
     ) -> Result<()> {
         trace!(
             "trying to deserialize buf for pid {} ptr {} lsn {}",
-            pid,
-            disk_ptr,
-            lsn
+            pid, disk_ptr, lsn
         );
         #[cfg(feature = "metrics")]
         let _measure = Measure::new(&M.snapshot_apply);
@@ -169,9 +167,7 @@ impl Snapshot {
             LogKind::Replace => {
                 trace!(
                     "compact of pid {} at ptr {} lsn {}",
-                    pid,
-                    disk_ptr,
-                    lsn,
+                    pid, disk_ptr, lsn,
                 );
 
                 let pid_usize = usize::try_from(pid).unwrap();
@@ -188,18 +184,14 @@ impl Snapshot {
                 {
                     trace!(
                         "append of pid {} at lid {} lsn {}",
-                        pid,
-                        disk_ptr,
-                        lsn,
+                        pid, disk_ptr, lsn,
                     );
 
                     lids.push((lsn, disk_ptr));
                 } else {
                     trace!(
                         "skipping dangling append of pid {} at lid {} lsn {}",
-                        pid,
-                        disk_ptr,
-                        lsn,
+                        pid, disk_ptr, lsn,
                     );
                     if pushed {
                         let old = self.pt.pop().unwrap();
@@ -264,9 +256,7 @@ fn advance_snapshot(
     for (log_kind, pid, lsn, ptr) in &mut iter {
         trace!(
             "in advance_snapshot looking at item with pid {} lsn {} ptr {}",
-            pid,
-            lsn,
-            ptr
+            pid, lsn, ptr
         );
 
         if lsn < snapshot.stable_lsn.unwrap_or(-1) {
@@ -274,9 +264,7 @@ fn advance_snapshot(
             // item ALREADY INCLUDED lsn in the snapshot.
             trace!(
                 "continuing in advance_snapshot, lsn {} ptr {} stable_lsn {:?}",
-                lsn,
-                ptr,
-                snapshot.stable_lsn
+                lsn, ptr, snapshot.stable_lsn
             );
             continue;
         }

@@ -82,8 +82,8 @@
 use std::{cell::RefCell, fmt, rc::Rc};
 
 use crate::{
-    concurrency_control, pin, Batch, Error, Event, Guard, IVec, Map, Protector,
-    Result, Tree,
+    Batch, Error, Event, Guard, IVec, Map, Protector, Result, Tree,
+    concurrency_control, pin,
 };
 
 /// A transaction that will

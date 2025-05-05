@@ -16,7 +16,7 @@ use core::sync::atomic::{
 
 use crate::CachePadded;
 
-use super::{pin, unprotected, Atomic, Guard, Owned, Shared};
+use super::{Atomic, Guard, Owned, Shared, pin, unprotected};
 
 pub(in crate::ebr) static SIZE_HINT: AtomicUsize = AtomicUsize::new(0);
 

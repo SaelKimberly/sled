@@ -1,9 +1,9 @@
 use std::{collections::BTreeMap, io};
 
 use super::{
-    pread_exact_or_eof, read_message, read_segment_header, BasedBuf, DiskPtr,
-    LogKind, LogOffset, LogRead, Lsn, SegmentHeader, SegmentNumber,
-    MAX_MSG_HEADER_LEN, SEG_HEADER_LEN,
+    BasedBuf, DiskPtr, LogKind, LogOffset, LogRead, Lsn, MAX_MSG_HEADER_LEN,
+    SEG_HEADER_LEN, SegmentHeader, SegmentNumber, pread_exact_or_eof,
+    read_message, read_segment_header,
 };
 use crate::*;
 
@@ -128,8 +128,7 @@ impl Iterator for LogIter {
                 Ok(LogRead::Corrupted) => {
                     trace!(
                         "read corrupted msg in LogIter::next as lid {} lsn {}",
-                        lid,
-                        lsn
+                        lid, lsn
                     );
                     if self.last_stage {
                         // this happens when the second half of a freed segment
@@ -210,8 +209,7 @@ impl LogIter {
 
         trace!(
             "LogIter::read_segment lsn: {:?} cur_lsn: {:?}",
-            lsn,
-            self.cur_lsn
+            lsn, self.cur_lsn
         );
         // we add segment_len to this check because we may be getting the
         // initial segment that is a bit behind where we left off before.
@@ -295,8 +293,7 @@ fn scan_segment_headers_and_tail(
         let segment = read_segment_header(&config.file, base_lid).ok()?;
         trace!(
             "SA scanned header at lid {} during startup: {:?}",
-            base_lid,
-            segment
+            base_lid, segment
         );
         if segment.ok && segment.lsn >= min {
             assert_ne!(segment.lsn, Lsn::max_value());
@@ -304,10 +301,7 @@ fn scan_segment_headers_and_tail(
         } else {
             trace!(
                 "not using segment at lid {}, ok: {} lsn: {} min lsn: {}",
-                base_lid,
-                segment.ok,
-                segment.lsn,
-                min
+                base_lid, segment.ok, segment.lsn, min
             );
             None
         }
@@ -328,9 +322,7 @@ fn scan_segment_headers_and_tail(
 
     trace!(
         "file len: {} segment len {} segments: {}",
-        file_len,
-        segment_len,
-        segments
+        file_len, segment_len, segments
     );
 
     // scatter
@@ -487,14 +479,12 @@ pub fn raw_segment_iter_from(
         "trying to find the max stable tip for \
          bounding batch manifests with segment iter {:?} \
          of segments >= first_tip {}",
-        tip_segment_iter,
-        end_of_last_msg,
+        tip_segment_iter, end_of_last_msg,
     );
 
     trace!(
         "generated iterator over segments {:?} with lsn >= {}",
-        ordering,
-        normalized_lsn,
+        ordering, normalized_lsn,
     );
 
     let segments = ordering

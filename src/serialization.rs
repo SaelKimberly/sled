@@ -7,11 +7,12 @@ use std::{
 };
 
 use crate::{
+    DiskPtr, Error, IVec, Link, Meta, Node, Result,
     pagecache::{
         BatchManifest, HeapId, MessageHeader, PageState, SegmentNumber,
         Snapshot,
     },
-    varint, DiskPtr, Error, IVec, Link, Meta, Node, Result,
+    varint,
 };
 
 /// Items that may be serialized and deserialized
@@ -421,11 +422,7 @@ impl Serialize for Option<i64> {
 
 fn shift_i64_opt(value_opt: &Option<i64>) -> i64 {
     if let Some(value) = value_opt {
-        if *value < 0 {
-            *value
-        } else {
-            value + 1
-        }
+        if *value < 0 { *value } else { value + 1 }
     } else {
         0
     }

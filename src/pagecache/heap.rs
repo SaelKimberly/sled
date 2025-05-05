@@ -6,16 +6,16 @@ use std::{
     fs::File,
     path::Path,
     sync::{
-        atomic::{AtomicU32, Ordering::Acquire},
         Arc,
+        atomic::{AtomicU32, Ordering::Acquire},
     },
 };
 
 use crate::{
-    ebr::pin,
-    pagecache::{pread_exact, pwrite_all, MessageKind},
-    stack::Stack,
     Error, Lsn, Result,
+    ebr::pin,
+    pagecache::{MessageKind, pread_exact, pwrite_all},
+    stack::Stack,
 };
 
 #[cfg(not(feature = "for-internal-testing-only"))]
@@ -380,7 +380,7 @@ impl Slab {
                 sync::atomic::{AtomicBool, Ordering::Relaxed},
             };
 
-            use libc::{fallocate, FALLOC_FL_KEEP_SIZE, FALLOC_FL_PUNCH_HOLE};
+            use libc::{FALLOC_FL_KEEP_SIZE, FALLOC_FL_PUNCH_HOLE, fallocate};
 
             static HOLE_PUNCHING_ENABLED: AtomicBool = AtomicBool::new(true);
             const MODE: i32 = FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE;

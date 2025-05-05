@@ -6,7 +6,7 @@
 use core::marker::PhantomData;
 use core::sync::atomic::Ordering::{Acquire, Relaxed, Release};
 
-use super::{pin, Atomic, Guard, Shared};
+use super::{Atomic, Guard, Shared, pin};
 
 /// An entry in a linked list.
 ///
@@ -261,8 +261,8 @@ impl<'g, T: 'g, C: IsElement<T>> Iterator for Iter<'g, T, C> {
 mod tests {
     #![allow(trivial_casts)]
     use super::*;
-    use crate::ebr::collector::Collector;
     use crate::ebr::Owned;
+    use crate::ebr::collector::Collector;
 
     impl IsElement<Entry> for Entry {
         fn entry_of(entry: &Entry) -> &Entry {

@@ -64,8 +64,7 @@ where
 
         trace!(
             "allocated pid {} for leaf in new_tree for namespace {:?}",
-            leaf_id,
-            name
+            leaf_id, name
         );
 
         // set up root index

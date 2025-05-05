@@ -3,7 +3,7 @@ mod common;
 use std::convert::TryFrom;
 use std::env::{self, VarError};
 use std::mem::size_of;
-use std::process::{exit, Child, Command, ExitStatus};
+use std::process::{Child, Command, ExitStatus, exit};
 use std::sync::{Arc, Barrier};
 use std::thread;
 use std::time::Duration;

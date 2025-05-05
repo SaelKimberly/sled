@@ -10,15 +10,15 @@ mod queue {
         cell::RefCell,
         collections::VecDeque,
         sync::{
-            atomic::{AtomicBool, AtomicUsize, Ordering},
             Once,
+            atomic::{AtomicBool, AtomicUsize, Ordering},
         },
         time::{Duration, Instant},
     };
 
     use parking_lot::{Condvar, Mutex};
 
-    use crate::{debug_delay, Lazy, OneShot};
+    use crate::{Lazy, OneShot, debug_delay};
 
     thread_local! {
         static WORKER: RefCell<bool> = const { RefCell::new(false) };

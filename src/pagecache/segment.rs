@@ -251,8 +251,7 @@ impl Segment {
                 trace!(
                     "removing heap_id {:?} while transitioning \
                      segment lsn {:?} to Inactive",
-                    heap_id,
-                    active.lsn,
+                    heap_id, active.lsn,
                 );
                 config.heap.free(*heap_id);
             }
@@ -562,10 +561,7 @@ impl SegmentAccountant {
             trace!(
                 "adding lsn: {} lid: {} for pid {} to segment {} \
                 during SA recovery",
-                lsn,
-                lid,
-                pid,
-                idx
+                lsn, lid, pid, idx
             );
             let segment_lsn = self.config.normalize(lsn);
             segments[idx].recovery_ensure_initialized(segment_lsn);
@@ -695,8 +691,7 @@ impl SegmentAccountant {
         {
             trace!(
                 "removing segment {} with lsn {} from ordering",
-                lid,
-                last_lsn
+                lid, last_lsn
             );
             self.ordering.remove(&last_lsn);
         }
@@ -754,10 +749,7 @@ impl SegmentAccountant {
 
         trace!(
             "mark_replace pid {} from cache infos {:?} to cache info {:?} with lsn {}",
-            pid,
-            old_cache_infos,
-            new_cache_info,
-            lsn
+            pid, old_cache_infos, new_cache_info, lsn
         );
 
         let new_idx_opt =
@@ -925,16 +917,13 @@ impl SegmentAccountant {
         let lsn = ((stable_lsn / segment_size) - 1) * segment_size;
         trace!(
             "stabilize({}), normalized: {}, last: {}",
-            stable_lsn,
-            lsn,
-            self.max_stabilized_lsn
+            stable_lsn, lsn, self.max_stabilized_lsn
         );
         if self.max_stabilized_lsn >= lsn {
             trace!(
                 "expected stabilization lsn {} \
                  to be greater than the previous value of {}",
-                lsn,
-                self.max_stabilized_lsn
+                lsn, self.max_stabilized_lsn
             );
             return Ok(());
         }
@@ -1001,9 +990,7 @@ impl SegmentAccountant {
 
         trace!(
             "deactivating segment with lid {} lsn {}: {:?}",
-            lid,
-            lsn,
-            self.segments[idx]
+            lid, lsn, self.segments[idx]
         );
 
         let freeable_segments = if self.segments[idx].is_active() {
@@ -1109,18 +1096,13 @@ impl SegmentAccountant {
 
         trace!(
             "generated iterator over {:?} where lsn >= {}",
-            self.ordering,
-            normalized_lsn
+            self.ordering, normalized_lsn
         );
 
         self.ordering
             .iter()
             .filter_map(move |(l, r)| {
-                if *l >= normalized_lsn {
-                    Some((*l, *r))
-                } else {
-                    None
-                }
+                if *l >= normalized_lsn { Some((*l, *r)) } else { None }
             })
             .collect()
     }

@@ -1,7 +1,7 @@
 #![allow(unsafe_code)]
 
 use std::{
-    alloc::{alloc, dealloc, Layout},
+    alloc::{Layout, alloc, dealloc},
     convert::TryFrom,
     fmt,
     hash::{Hash, Hasher},

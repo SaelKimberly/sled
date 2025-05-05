@@ -1,5 +1,5 @@
 use std::{
-    alloc::{alloc, dealloc, Layout},
+    alloc::{Layout, alloc, dealloc},
     cell::UnsafeCell,
     sync::atomic::AtomicPtr,
 };
@@ -179,8 +179,7 @@ impl StabilityIntervals {
     fn mark_fsync(&mut self, interval: (Lsn, Lsn)) -> Option<Lsn> {
         trace!(
             "pushing interval {:?} into fsynced_ranges {:?}",
-            interval,
-            self.fsynced_ranges
+            interval, self.fsynced_ranges
         );
         if let Some((low, high)) = self.fsynced_ranges.last_mut() {
             if *low == interval.1 + 1 {
@@ -648,9 +647,7 @@ impl IoBufs {
 
         trace!(
             "write_to_log log_offset {} lsn {} len {}",
-            log_offset,
-            base_lsn,
-            bytes_to_write
+            log_offset, base_lsn, bytes_to_write
         );
 
         let maxed = header::is_maxed(header);
@@ -953,7 +950,10 @@ pub(in crate::pagecache) fn make_stable_inner(
 
     while stable < lsn {
         if let Err(e) = iobufs.config.global_error() {
-            error!("bailing out of stabilization code due to detected IO error: {:?}", e);
+            error!(
+                "bailing out of stabilization code due to detected IO error: {:?}",
+                e
+            );
             let intervals = iobufs.intervals.lock();
 
             // having held the mutex makes this linearized

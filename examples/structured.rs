@@ -15,7 +15,7 @@
 use {
     byteorder::{BigEndian, LittleEndian},
     zerocopy::{
-        byteorder::U64, AsBytes, FromBytes, LayoutVerified, Unaligned, U16, U32,
+        AsBytes, FromBytes, LayoutVerified, U16, U32, Unaligned, byteorder::U64,
     },
 };
 

@@ -2,7 +2,7 @@
 #![allow(unsafe_code)]
 
 use std::{
-    alloc::{alloc_zeroed, Layout},
+    alloc::{Layout, alloc_zeroed},
     convert::TryFrom,
     mem::{align_of, size_of},
     sync::atomic::Ordering::{Acquire, Relaxed, Release},
@@ -10,12 +10,12 @@ use std::{
 
 use crate::{
     debug_delay,
-    ebr::{pin, Atomic, Guard, Owned, Shared},
-    pagecache::{constants::MAX_PID_BITS, Page, PageView},
+    ebr::{Atomic, Guard, Owned, Shared, pin},
+    pagecache::{Page, PageView, constants::MAX_PID_BITS},
 };
 
 #[cfg(feature = "metrics")]
-use crate::{Measure, M};
+use crate::{M, Measure};
 
 #[allow(unused)]
 #[doc(hidden)]

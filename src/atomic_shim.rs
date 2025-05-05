@@ -8,7 +8,7 @@
 pub use std::sync::atomic::{AtomicI64, AtomicU64};
 #[cfg(any(target_arch = "mips", target_arch = "powerpc", feature = "mutex"))]
 mod shim {
-    use parking_lot::{const_rwlock, RwLock};
+    use parking_lot::{RwLock, const_rwlock};
     use std::sync::atomic::Ordering;
 
     #[derive(Debug, Default)]

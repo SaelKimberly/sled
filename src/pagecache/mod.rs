@@ -40,8 +40,8 @@ use self::{
         PAGE_CONSOLIDATION_THRESHOLD, SEGMENT_CLEANUP_THRESHOLD,
     },
     header::Header,
-    iobuf::{roll_iobuf, IoBuf, IoBufs},
-    iterator::{raw_segment_iter_from, LogIter},
+    iobuf::{IoBuf, IoBufs, roll_iobuf},
+    iterator::{LogIter, raw_segment_iter_from},
     pagetable::PageTable,
     segment::{SegmentAccountant, SegmentCleaner, SegmentOp},
 };
@@ -49,11 +49,11 @@ use self::{
 pub(crate) use self::{
     heap::{Heap, HeapId},
     logger::{
-        read_message, read_segment_header, MessageHeader, SegmentHeader,
-        SegmentNumber,
+        MessageHeader, SegmentHeader, SegmentNumber, read_message,
+        read_segment_header,
     },
     reservation::Reservation,
-    snapshot::{read_snapshot_or_default, PageState, Snapshot},
+    snapshot::{PageState, Snapshot, read_snapshot_or_default},
 };
 
 pub use self::{
@@ -630,10 +630,10 @@ impl PageCache {
             let (meta_id, _) = pc.allocate_inner(meta_update, &guard)?;
 
             assert_eq!(
-                    meta_id, META_PID,
-                    "we expect the meta page to have pid {}, but it had pid {} instead",
-                    META_PID, meta_id,
-                );
+                meta_id, META_PID,
+                "we expect the meta page to have pid {}, but it had pid {} instead",
+                META_PID, meta_id,
+            );
         }
 
         if !pc.inner.contains_pid(COUNTER_PID, &guard) {
@@ -645,10 +645,10 @@ impl PageCache {
             let (counter_id, _) = pc.allocate_inner(counter_update, &guard)?;
 
             assert_eq!(
-                    counter_id, COUNTER_PID,
-                    "we expect the counter to have pid {}, but it had pid {} instead",
-                    COUNTER_PID, counter_id,
-                );
+                counter_id, COUNTER_PID,
+                "we expect the counter to have pid {}, but it had pid {} instead",
+                COUNTER_PID, counter_id,
+            );
         }
 
         let (idgen_key, counter) = pc.get_idgen(&guard);
@@ -1271,9 +1271,7 @@ impl PageCacheInner {
                         "allowing heap pointer for pid {} with original lsn of {} \
                         to be forgotten from the log, as it is contained in the \
                         snapshot which has a minimum lsn of {}",
-                        pid,
-                        original_lsn,
-                        snapshot_min_lsn
+                        pid, original_lsn, snapshot_min_lsn
                     );
 
                     let cache_info = CacheInfo {
@@ -1380,15 +1378,15 @@ impl PageCacheInner {
                     }
                 };
 
-                let res = self.cas_page(pid, key, update, true, guard).inspect(
-                    |res| {
+                let res = self
+                    .cas_page(pid, key, update, true, guard)
+                    .inspect(|res| {
                         trace!(
                             "rewriting pid {} success: {}",
                             pid,
                             res.is_ok()
                         );
-                    },
-                )?;
+                    })?;
                 if res.is_ok() {
                     return Ok(());
                 }
@@ -1794,8 +1792,7 @@ impl PageCacheInner {
                 trace!(
                     "persisting ID gen, as persist count {} \
                     is below necessary persists {}",
-                    persisted,
-                    necessary_persists
+                    persisted, necessary_persists
                 );
                 let guard = pin();
                 let (key, current) = self.get_idgen(&guard);

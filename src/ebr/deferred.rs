@@ -53,21 +53,13 @@ impl Deferred {
                 let mut data = Data::uninit();
                 ptr::write(data.as_mut_ptr() as *mut F, f);
 
-                Deferred {
-                    call: call_raw::<F>,
-                    data,
-                    _marker: PhantomData,
-                }
+                Deferred { call: call_raw::<F>, data, _marker: PhantomData }
             } else {
                 let b: Box<F> = Box::new(f);
                 let mut data = Data::uninit();
                 ptr::write(data.as_mut_ptr() as *mut Box<F>, b);
 
-                Deferred {
-                    call: call_raw_box::<F>,
-                    data,
-                    _marker: PhantomData,
-                }
+                Deferred { call: call_raw_box::<F>, data, _marker: PhantomData }
             }
         }
     }

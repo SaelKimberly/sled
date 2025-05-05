@@ -1,11 +1,11 @@
 mod common;
 
-use rand::{thread_rng, Rng};
+use rand::{Rng, thread_rng};
 
 use sled::*;
 
 use sled::{
-    pin, BatchManifest, Log, LogKind, LogRead, Lsn, PageId, SEG_HEADER_LEN,
+    BatchManifest, Log, LogKind, LogRead, Lsn, PageId, SEG_HEADER_LEN, pin,
 };
 
 const PID: PageId = 4;
